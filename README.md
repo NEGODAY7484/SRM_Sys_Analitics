@@ -1,1 +1,124 @@
-# SRM_Sys_Analitics
+# SRM-прототип: анализ нарушений закупок (онтология + интеллектуальные агенты)
+
+Этот репозиторий содержит прототип SRM-системы для анализа нарушений в закупках на основе:
+- **онтологической модели нормативных правил** (JSON)
+- **комплекса интеллектуальных агентов** (модульная архитектура)
+- **логирования**, **отчётности** (JSON + консоль) и **графиков** (PNG)
+
+Поддерживаемые типы нарушений:
+- превышение бюджета
+- недопустимый поставщик
+- нарушение сроков поставки
+
+## Быстрый старт
+
+### 1) Установка
+
+Требования: Python 3.10+
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -U pip
+python -m pip install -e ".[dev]"
+```
+
+### Запуск тестов
+
+```powershell
+pytest
+```
+
+### 2) Пример запуска анализа (CLI)
+
+```powershell
+python -m srm.cli analyze `
+  --data .\examples\procurements.json `
+  --rules .\examples\rules_ontology.json `
+  --out .\outputs\report.json `
+  --charts-dir .\outputs\charts `
+  --log-dir .\outputs\logs
+```
+
+Результаты:
+- отчёт: `outputs/report.json`
+- графики: `outputs/charts/*.png`
+- логи: `outputs/logs/srm.log`
+
+Вывод в консоль по умолчанию — **на русском языке**, включая:
+- итоги анализа и расчёты
+- ASCII-график по типам нарушений
+- список нарушений
+
+Чтобы открыть отчёт и графики в отдельных окнах (приложения по умолчанию ОС), добавьте:
+
+```powershell
+python -m srm.cli analyze ... --open-output
+```
+
+Пример консольного вывода (укорочено):
+
+```text
+SRM analysis summary
+- records: 3
+- violations_total: 4
+- budget_exceeded: 1
+- disallowed_supplier: 1
+- delivery_delay: 2
+```
+
+### 3) Минимальный Web API (опционально)
+
+```powershell
+python -m pip install -e ".[api]"
+python -m srm.cli serve --host 127.0.0.1 --port 8000
+```
+
+Откройте:
+- `GET /health`
+- `POST /analyze` (принимает JSON с закупками и онтологией правил)
+
+## Архитектура
+
+```
+src/srm/
+  data/        загрузка и нормализация данных (JSON/CSV)
+  ontology/    модель нормативных правил (онтология) + загрузчик
+  agents/      агенты-детекторы нарушений + композиция агентов
+  logic/       детекторы, типы нарушений, расчёты, отчёты, графики
+  api/         FastAPI (опционально)
+  cli.py       CLI интерфейс
+```
+
+Ключевая идея расширяемости:
+- новые правила добавляются в `ontology/models.py` и в JSON-онтологию
+- новые агенты реализуют интерфейс `srm.agents.base.BaseAgent`
+
+## Формат входных данных
+
+Поддержка:
+- JSON: массив объектов или объект с ключом `procurements`
+- CSV: таблица со столбцами по аналогичным полям
+
+Пример: `examples/procurements.json`, `examples/procurements.csv`
+
+## Формат онтологии правил
+
+Пример: `examples/rules_ontology.json`
+
+Разделы:
+- `budget`: правила бюджета
+- `suppliers`: whitelist/blacklist поставщиков
+- `delivery`: правила сроков поставки
+
+## CI/CD
+
+GitHub Actions: `.github/workflows/ci.yml`
+- установка зависимостей
+- запуск `ruff` и `pytest`
+
+## Расширение прототипа (идеи для диплома)
+- добавить разные профили правил (по категориям/типам закупок)
+- добавить агент риск-скоринга и приоритезации
+- интегрировать полноценную онтологию (OWL/RDF) и reasoning (например, через rdflib)
+- подключить LLM-агента для объяснений и рекомендаций (поверх детекторов)

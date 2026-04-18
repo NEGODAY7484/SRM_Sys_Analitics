@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "meta": {
+    "source": "demo",
+    "note": "Правила для прототипа SRM"
+  },
+  "budget": {
+    "mode": "per_record",
+    "tolerance_pct": 0.0
+  },
+  "suppliers": {
+    "blacklist": ["SUP-003"],
+    "whitelist": null
+  },
+  "delivery": {
+    "allowed_delay_days": 2,
+    "consider_undelivered_as_violation": true
+  }
+}
+

@@ -1,0 +1,75 @@
+﻿{
+  "meta": {
+    "generated_at": "2026-04-18T20:05:42.750991+00:00",
+    "analysis_date": "2026-04-18",
+    "ontology_version": "1.0"
+  },
+  "summary": {
+    "records_total": 3,
+    "violations_total": 4,
+    "records_with_violations": 3,
+    "violations_by_type": {
+      "BUDGET_EXCEEDED": 1,
+      "DISALLOWED_SUPPLIER": 1,
+      "DELIVERY_DELAY": 2
+    },
+    "spend_total": 2150000.0,
+    "overspend_total": 200000.0,
+    "overspend_max": 200000.0,
+    "unique_suppliers_total": 3,
+    "disallowed_suppliers_unique": 1,
+    "avg_delivery_delay_days": 40.5,
+    "max_delivery_delay_days": 76
+  },
+  "charts": {
+    "violation_counts": "outputs\\charts\\violation_counts.png",
+    "budget_overspend_hist": "outputs\\charts\\budget_overspend_hist.png",
+    "delivery_delay_hist": "outputs\\charts\\delivery_delay_hist.png"
+  },
+  "violations": [
+    {
+      "procurement_id": "P-001",
+      "type": "BUDGET_EXCEEDED",
+      "message": "Сумма договора превышает бюджет",
+      "details": {
+        "amount": 1200000.0,
+        "budget": 1000000.0,
+        "overspend": 200000.0,
+        "tolerance_pct": 0.0
+      }
+    },
+    {
+      "procurement_id": "P-002",
+      "type": "DISALLOWED_SUPPLIER",
+      "message": "Поставщик находится в запрещённом списке (blacklist)",
+      "details": {
+        "supplier_id": "SUP-003",
+        "supplier_name": "ООО РискПоставщик",
+        "mode": "blacklist"
+      }
+    },
+    {
+      "procurement_id": "P-001",
+      "type": "DELIVERY_DELAY",
+      "message": "Поставка выполнена с нарушением сроков",
+      "details": {
+        "due_date": "2026-03-20",
+        "actual_date": "2026-03-25",
+        "delay_days": 5,
+        "allowed_delay_days": 2
+      }
+    },
+    {
+      "procurement_id": "P-003",
+      "type": "DELIVERY_DELAY",
+      "message": "Поставка отсутствует и срок поставки нарушен",
+      "details": {
+        "due_date": "2026-02-01",
+        "actual_date": null,
+        "delay_days": 76,
+        "allowed_delay_days": 2,
+        "analysis_date": "2026-04-18"
+      }
+    }
+  ]
+}

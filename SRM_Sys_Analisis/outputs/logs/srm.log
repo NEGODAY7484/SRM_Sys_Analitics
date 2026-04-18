@@ -1,0 +1,49 @@
+2026-04-18 21:43:56 | INFO | __main__ | Starting analysis
+2026-04-18 21:43:56 | INFO | srm.agents.detectors | BudgetAgent: found 1 budget violations
+2026-04-18 21:43:56 | INFO | srm.agents.detectors | SupplierAgent: found 1 supplier violations
+2026-04-18 21:43:56 | INFO | srm.agents.detectors | DeliveryAgent: found 2 delivery violations
+2026-04-18 21:43:56 | INFO | srm.agents.violation_agent | DefaultViolationAgent: total violations=4 (unique=4)
+2026-04-18 21:43:57 | INFO | __main__ | Report saved: outputs\report.json
+2026-04-18 21:43:57 | INFO | __main__ | Violations found: 4
+2026-04-18 21:44:53 | INFO | __main__ | Starting analysis
+2026-04-18 21:44:53 | INFO | srm.agents.detectors | BudgetAgent: found 1 budget violations
+2026-04-18 21:44:53 | INFO | srm.agents.detectors | SupplierAgent: found 1 supplier violations
+2026-04-18 21:44:53 | INFO | srm.agents.detectors | DeliveryAgent: found 2 delivery violations
+2026-04-18 21:44:53 | INFO | srm.agents.violation_agent | DefaultViolationAgent: total violations=4 (unique=4)
+2026-04-18 21:44:54 | INFO | __main__ | Report saved: outputs\report.json
+2026-04-18 21:44:54 | INFO | __main__ | Violations found: 4
+2026-04-18 22:51:24 | INFO | __main__ | Starting analysis
+2026-04-18 22:51:24 | INFO | srm.agents.detectors | BudgetAgent: found 1 budget violations
+2026-04-18 22:51:24 | INFO | srm.agents.detectors | SupplierAgent: found 1 supplier violations
+2026-04-18 22:51:24 | INFO | srm.agents.detectors | DeliveryAgent: found 2 delivery violations
+2026-04-18 22:51:24 | INFO | srm.agents.violation_agent | DefaultViolationAgent: total violations=4 (unique=4)
+2026-04-18 22:51:24 | INFO | __main__ | Report saved: outputs\report.json
+2026-04-18 22:51:24 | INFO | __main__ | Violations found: 4
+2026-04-18 23:01:58 | INFO | __main__ | Запуск анализа
+2026-04-18 23:01:58 | INFO | srm.agents.detectors | BudgetAgent: найдено нарушений бюджета: 1
+2026-04-18 23:01:58 | INFO | srm.agents.detectors | SupplierAgent: найдено нарушений по поставщикам: 1
+2026-04-18 23:01:58 | INFO | srm.agents.detectors | DeliveryAgent: найдено нарушений сроков поставки: 2
+2026-04-18 23:01:58 | INFO | srm.agents.violation_agent | DefaultViolationAgent: всего нарушений=4 (уникальных=4)
+2026-04-18 23:01:58 | INFO | __main__ | Отчёт сохранён: outputs\report.json
+2026-04-18 23:01:58 | INFO | __main__ | Найдено нарушений: 4
+2026-04-18 23:02:17 | INFO | __main__ | Запуск анализа
+2026-04-18 23:02:17 | INFO | srm.agents.detectors | BudgetAgent: найдено нарушений бюджета: 1
+2026-04-18 23:02:17 | INFO | srm.agents.detectors | SupplierAgent: найдено нарушений по поставщикам: 1
+2026-04-18 23:02:17 | INFO | srm.agents.detectors | DeliveryAgent: найдено нарушений сроков поставки: 2
+2026-04-18 23:02:17 | INFO | srm.agents.violation_agent | DefaultViolationAgent: всего нарушений=4 (уникальных=4)
+2026-04-18 23:02:18 | INFO | __main__ | Отчёт сохранён: outputs\report.json
+2026-04-18 23:02:18 | INFO | __main__ | Найдено нарушений: 4
+2026-04-18 23:05:20 | INFO | __main__ | Запуск анализа
+2026-04-18 23:05:20 | INFO | srm.agents.detectors | BudgetAgent: найдено нарушений бюджета: 1
+2026-04-18 23:05:20 | INFO | srm.agents.detectors | SupplierAgent: найдено нарушений по поставщикам: 1
+2026-04-18 23:05:20 | INFO | srm.agents.detectors | DeliveryAgent: найдено нарушений сроков поставки: 2
+2026-04-18 23:05:20 | INFO | srm.agents.violation_agent | DefaultViolationAgent: всего нарушений=4 (уникальных=4)
+2026-04-18 23:05:20 | INFO | __main__ | Отчёт сохранён: outputs\report.json
+2026-04-18 23:05:20 | INFO | __main__ | Найдено нарушений: 4
+2026-04-18 23:05:42 | INFO | __main__ | Запуск анализа
+2026-04-18 23:05:42 | INFO | srm.agents.detectors | BudgetAgent: найдено нарушений бюджета: 1
+2026-04-18 23:05:42 | INFO | srm.agents.detectors | SupplierAgent: найдено нарушений по поставщикам: 1
+2026-04-18 23:05:42 | INFO | srm.agents.detectors | DeliveryAgent: найдено нарушений сроков поставки: 2
+2026-04-18 23:05:42 | INFO | srm.agents.violation_agent | DefaultViolationAgent: всего нарушений=4 (уникальных=4)
+2026-04-18 23:05:42 | INFO | __main__ | Отчёт сохранён: outputs\report.json
+2026-04-18 23:05:42 | INFO | __main__ | Найдено нарушений: 4

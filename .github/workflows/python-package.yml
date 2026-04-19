@@ -2,28 +2,42 @@ name: Python CI
 
 on:
   push:
-    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "main", "master" ]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: ${{ matrix.python-version }}
+          cache: pip
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install -U pip
+          python -m pip install -e ".[dev]"
 
-      - name: Run app
+      - name: Lint (ruff)
         run: |
-          python app.py
+          ruff format --check .
+          ruff check .
+
+      - name: Tests (pytest)
+        run: |
+          pytest
+
+      - name: Smoke test (CLI analyze)
+        run: |
+          python -m srm.cli analyze \
+            --data ./examples/procurements.json \
+            --rules ./examples/rules_ontology.json \
+            --out ./outputs/report.json \
+            --charts-dir ./outputs/charts \
+            --log-dir ./outputs/logs

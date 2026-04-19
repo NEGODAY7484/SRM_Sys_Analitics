@@ -1,0 +1,66 @@
+﻿{
+  "plan": {
+    "analysis_date": "2026-04-18",
+    "n_records": [
+      500,
+      2000,
+      5000
+    ],
+    "p_missing_delivery": [
+      0.0,
+      0.2,
+      0.4,
+      0.6
+    ],
+    "tolerance_pct": [
+      0.0,
+      5.0,
+      10.0,
+      20.0
+    ],
+    "allowed_delay_days": 2,
+    "p_budget_violation": 0.25,
+    "p_disallowed_supplier": 0.1,
+    "p_delivery_delay": 0.25
+  },
+  "tables": {
+    "missing_rates": "outputs\\experiment7\\tables\\table_missing_rates.csv",
+    "runtime": "outputs\\experiment7\\tables\\table_runtime.csv",
+    "budget_tolerance": "outputs\\experiment7\\tables\\table_budget_tolerance.csv"
+  },
+  "plots": {
+    "delivery_recall_vs_missing": "outputs\\experiment7\\plots\\plot_delivery_recall_vs_missing.png",
+    "runtime_vs_n": "outputs\\experiment7\\plots\\plot_runtime_vs_n.png",
+    "budget_f1_vs_tolerance": "outputs\\experiment7\\plots\\plot_budget_f1_vs_tolerance.png"
+  },
+  "verification": {
+    "dataset": {
+      "n_records": 200,
+      "seed": 7
+    },
+    "overall": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "by_type": {
+      "BUDGET_EXCEEDED": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "DISALLOWED_SUPPLIER": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "DELIVERY_DELAY": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    },
+    "passed": true,
+    "note": "Проверка на синтетическом тестовом наборе с известной разметкой (ground truth)."
+  }
+}

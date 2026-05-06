@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% set title = "Заявки" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Заявки на ремонт (демо)</h1>
+      <div class="muted">Исторический модуль прототипа — оставлен для совместимости</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Ticket</th>
+          <th>Устройство</th>
+          <th>Модель</th>
+          <th>Проблема</th>
+          <th>Статус</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in repairs %}
+        <tr>
+          <td><code>{{ r.ticket_id }}</code></td>
+          <td>{{ r.device_type }}</td>
+          <td>{{ r.brand }} {{ r.model }}</td>
+          <td>{{ r.issue }}</td>
+          <td><span class="pill pill-neutral">{{ r.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if repairs|length == 0 %}
+      <div class="muted">Пока нет заявок.</div>
+    {% endif %}
+  </div>
+{% endblock %}
+

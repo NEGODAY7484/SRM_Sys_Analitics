@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% set title = "Интеллектуальный SRM-анализ" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Интеллектуальный SRM-анализ</h1>
+      <div class="muted">Динамическая онтология правил · мультиагенты · risk score · explainability · рекомендации</div>
+    </div>
+    {% if user.role in ["admin","analyst","manager"] %}
+    <form method="post" action="/runs/new">
+      <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+      <button class="btn btn-primary" type="submit">Аудит (SRM‑проверка)</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <section class="bento">
+    <div class="bento-card">
+      <div class="kpi-title">System Risk Index</div>
+      <div class="kpi-value">{{ metrics.system_risk_index }}</div>
+      <div class="kpi-foot muted">средний риск (0–100)</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Поставщики (critical)</div>
+      <div class="kpi-value">{{ metrics.suppliers_critical }}</div>
+      <div class="kpi-foot muted">75–100</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Поставщики (high)</div>
+      <div class="kpi-value">{{ metrics.suppliers_high }}</div>
+      <div class="kpi-foot muted">50–74</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Рекомендации</div>
+      <div class="kpi-value">{{ metrics.recommendations }}</div>
+      <div class="kpi-foot muted">в последних нарушениях</div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <div class="h2">Интерактивные графики</div>
+      <script>
+        window.SRM_INTEL_DATA = {{ chart_data | tojson }};
+      </script>
+      <div class="chart-stack">
+        <canvas id="chart-risk-levels" height="140"></canvas>
+        <div style="height:12px"></div>
+        <canvas id="chart-risk-dynamics" height="140"></canvas>
+        <div style="height:12px"></div>
+        <canvas id="chart-f1-baseline-proposed" height="140"></canvas>
+      </div>
+      <div style="height:10px"></div>
+      <div class="muted">Графики строятся локально (Chart.js), без интернета.</div>
+    </div>
+
+    <div class="card">
+      <div class="h2">Топ рискованных поставщиков</div>
+      {% if top_suppliers and top_suppliers|length > 0 %}
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Поставщик</th>
+              <th>Risk score</th>
+              <th>Уровень</th>
+              <th>Причины</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in top_suppliers %}
+              <tr>
+                <td><a href="/suppliers/{{ s.supplier_id }}">{{ s.supplier_id }}</a></td>
+                <td><b>{{ s.risk_score }}</b></td>
+                <td><span class="pill {{ 'pill-bad' if s.risk_level in ['high','critical'] else ('pill-warn' if s.risk_level == 'medium' else 'pill-ok') }}">{{ s.risk_level }}</span></td>
+                <td class="muted">{{ s.reasons_short }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="muted">Пока нет истории риска. Запустите аудит.</div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <div class="h2">Последние нарушения и рекомендации</div>
+        <div class="muted">Explainability: правило → причина → управленческое действие</div>
+      </div>
+    </div>
+    {% if last_violations and last_violations|length > 0 %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Нарушение</th>
+            <th>Тип</th>
+            <th>Риск</th>
+            <th>Поставщик</th>
+            <th>Причина</th>
+            <th>Рекомендация</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in last_violations %}
+          <tr>
+            <td><a href="/violations/{{ v.violation_id }}"><code>{{ v.violation_id }}</code></a></td>
+            <td>{{ v.type }}</td>
+            <td><span class="pill {{ 'pill-bad' if v.risk_level == 'high' else ('pill-warn' if v.risk_level == 'medium' else 'pill-ok') }}">{{ v.risk_level }}</span></td>
+            <td>{{ v.supplier_id or "-" }}</td>
+            <td class="muted">{{ v.cause }}</td>
+            <td>{{ v.recommendation }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="muted">Нарушений пока нет.</div>
+    {% endif %}
+  </section>
+{% endblock %}

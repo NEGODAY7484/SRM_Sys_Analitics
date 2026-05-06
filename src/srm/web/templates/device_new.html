@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% set title = "Новое устройство" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Новое устройство</h1>
+      <div class="muted">IMEI/Serial, состояние при приёмке и описание дефектов</div>
+    </div>
+  </div>
+
+  <div class="card card-lg">
+    {% if error %}
+      <div class="alert">{{ error }}</div>
+    {% endif %}
+    <form class="form" method="post" action="/devices/new">
+      <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+      <div>
+        <div class="label">Device ID</div>
+        <input class="input" name="device_id" value="{{ next_id }}" />
+      </div>
+      <div>
+        <div class="label">Клиент *</div>
+        <select class="input" name="client_id">
+          {% for c in clients %}
+            <option value="{{ c.client_id }}">{{ c.client_id }} — {{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <div class="label">Тип устройства *</div>
+        <select class="input" name="device_type">
+          <option value="phone">Телефон</option>
+          <option value="tablet">Планшет</option>
+          <option value="laptop">Ноутбук</option>
+          <option value="watch">Смарт-часы</option>
+        </select>
+      </div>
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">Бренд *</div>
+          <input class="input" name="brand" placeholder="Apple" />
+        </div>
+        <div style="flex:1">
+          <div class="label">Модель *</div>
+          <input class="input" name="model" placeholder="iPhone 13" />
+        </div>
+      </div>
+      <div>
+        <div class="label">IMEI / Серийный номер</div>
+        <input class="input" name="serial_or_imei" placeholder="3567... / C02..." />
+      </div>
+      <div>
+        <div class="label">Состояние при приёмке</div>
+        <input class="input" name="intake_condition" placeholder="Следы использования, сколы, царапины..." />
+      </div>
+      <div>
+        <div class="label">Описание дефектов</div>
+        <input class="input" name="defects_text" placeholder="Разбит экран, не заряжается..." />
+      </div>
+      <div class="row">
+        <button class="btn btn-primary" type="submit">Создать</button>
+        <a class="btn" href="/devices">Отмена</a>
+      </div>
+      <div class="hint">Поля со звёздочкой обязательны.</div>
+    </form>
+  </div>
+{% endblock %}

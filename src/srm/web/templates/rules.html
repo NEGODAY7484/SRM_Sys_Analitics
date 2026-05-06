@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% set title = "Правила" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Правила (онтология)</h1>
+      {% if ruleset %}
+        <div class="muted">
+          Активный набор правил: <strong>{{ ruleset.name }}</strong> (версия {{ ruleset.version }})
+        </div>
+      {% endif %}
+      <div class="muted">Источник: <code>{{ rules_path }}</code></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <pre class="codeblock">{{ raw }}</pre>
+  </div>
+{% endblock %}

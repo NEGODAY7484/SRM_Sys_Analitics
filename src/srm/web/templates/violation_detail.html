@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% set title = "Карточка нарушения" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Нарушение {{ v.violation_id }}</h1>
+      <div class="muted">Explainability: причина · сработавшие правила · рекомендации</div>
+    </div>
+    <div class="row">
+      <a class="btn btn-ghost" href="/violations">Назад</a>
+      {% if v.run_id %}
+        <a class="btn" href="/runs/{{ v.run_id }}">Открыть запуск</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <section class="grid2">
+    <div class="card">
+      <div class="h2">Сводка</div>
+      <table class="table">
+        <tbody>
+          <tr><th>Тип</th><td>{{ v.type }}</td></tr>
+          <tr><th>Риск</th><td><span class="pill {{ 'pill-bad' if v.risk_level == 'high' else ('pill-warn' if v.risk_level == 'medium' else 'pill-ok') }}">{{ v.risk_level }}</span></td></tr>
+          <tr><th>Статус</th><td><span class="pill pill-neutral">{{ v.status }}</span></td></tr>
+          <tr><th>Вероятность риска</th><td>{{ details.get("risk_probability", "-") }}</td></tr>
+          <tr><th>Сущность</th><td>{{ v.entity_type }} <code>{{ v.entity_id }}</code></td></tr>
+          <tr><th>Поставщик</th><td>{{ v.supplier_id or "-" }}</td></tr>
+          <tr><th>Сообщение</th><td>{{ v.message }}</td></tr>
+          <tr><th>Создано</th><td>{{ v.created_at }}</td></tr>
+          <tr><th>Обновлено</th><td>{{ v.updated_at }}</td></tr>
+        </tbody>
+      </table>
+
+      <div style="height:10px"></div>
+      <div class="h2">Рекомендация</div>
+      <div class="muted">{{ details.get("recommendation") or "Требуется ручная проверка." }}</div>
+
+      <div style="height:12px"></div>
+      <form method="post" action="/violations/{{ v.violation_id }}/status" class="row" style="gap:8px">
+        <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+        <select class="input" name="new_status">
+          {% for s in statuses %}
+            <option value="{{ s }}" {{ 'selected' if v.status == s else '' }}>{{ s }}</option>
+          {% endfor %}
+        </select>
+        <input class="input" name="comment" placeholder="Комментарий (опционально)" style="flex:1" />
+        <button class="btn btn-primary" type="submit">Сохранить статус</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="h2">Explainability</div>
+      <table class="table">
+        <tbody>
+          <tr><th>Код правила</th><td><code>{{ details.get("rule_code", "-") }}</code></td></tr>
+          <tr><th>Причина</th><td>{{ details.get("cause", "-") }}</td></tr>
+          <tr><th>Сработавшие условия</th>
+            <td>
+              {% if details.get("rules_fired") %}
+                <ul style="margin:0; padding-left:18px">
+                  {% for x in details.get("rules_fired") %}
+                    <li><code>{{ x }}</code></li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <span class="muted">-</span>
+              {% endif %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="height:12px"></div>
+      <div class="h2">Технические детали (JSON)</div>
+      <pre class="pre">{{ details_pretty }}</pre>
+    </div>
+  </section>
+{% endblock %}

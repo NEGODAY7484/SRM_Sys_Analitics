@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+{% set title = "Заказ " ~ order.order_id %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Заказ <code>{{ order.order_id }}</code></h1>
+      <div class="muted">
+        Клиент: <a href="/clients/{{ order.client_id }}">{{ order.client_name }}</a> ·
+        Устройство: <a href="/devices/{{ order.device_id }}">{{ order.brand }} {{ order.model }}</a>
+      </div>
+      <div class="muted">Неисправность: {{ order.issue }}</div>
+    </div>
+    <div class="row">
+      <a class="btn" href="/documents/receipt/{{ order.order_id }}" target="_blank">Квитанция</a>
+      <a class="btn" href="/documents/act/{{ order.order_id }}" target="_blank">Акт</a>
+      <a class="btn" href="/documents/warranty/{{ order.order_id }}" target="_blank">Гарантия</a>
+    </div>
+  </div>
+
+  <section class="bento">
+    <div class="bento-card">
+      <div class="kpi-title">Статус</div>
+      <div class="kpi-value" style="font-size:20px">{{ order_status_label }}</div>
+      <div class="kpi-foot muted">workflow ремонта</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Мастер</div>
+      <div class="kpi-value" style="font-size:20px">{{ order.assigned_master or "-" }}</div>
+      <div class="kpi-foot muted">ответственный</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Срок</div>
+      <div class="kpi-value" style="font-size:20px">{{ order.due_date or "-" }}</div>
+      <div class="kpi-foot muted">плановая дата</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Итого</div>
+      <div class="kpi-value">{{ total_cost }}</div>
+      <div class="kpi-foot muted">запчасти + работа</div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Фото устройства</div>
+          <div class="muted">фиксируем состояние и дефекты</div>
+        </div>
+      </div>
+
+      {% if device_photo_url %}
+        <img class="photo" src="{{ device_photo_url }}" alt="Фото устройства" />
+      {% else %}
+        <div class="muted">Фото устройства пока не добавлено.</div>
+      {% endif %}
+
+      {% if user.role in ["admin","manager","master"] %}
+        <div style="height:10px"></div>
+        <form class="row" method="post" action="/devices/{{ order.device_id }}/photo" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+          <input class="input" type="file" name="photo" accept="image/*" required />
+          <button class="btn" type="submit">Загрузить</button>
+        </form>
+        <div class="hint">Поддерживаются .jpg/.jpeg/.png/.webp</div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Фото по заказу</div>
+          <div class="muted">чек-листы, акты, упаковка, процесс</div>
+        </div>
+      </div>
+
+      {% if photos|length > 0 %}
+        <div class="photo-grid">
+          {% for p in photos %}
+            <div class="photo-item">
+              <img class="photo-thumb" src="{{ p.url }}" alt="Фото" />
+              {% if p.caption %}
+                <div class="muted" style="font-size:12px; margin-top:6px">{{ p.caption }}</div>
+              {% endif %}
+              <div class="muted" style="font-size:11px; margin-top:2px">{{ p.created_at }}</div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="muted">Фото по заказу пока не добавлены.</div>
+      {% endif %}
+
+      {% if user.role in ["admin","manager","master"] %}
+        <div style="height:10px"></div>
+        <form class="form" method="post" action="/orders/{{ order.order_id }}/photos" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+          <div class="row">
+            <input class="input" type="file" name="photo" accept="image/*" required />
+            <input class="input" name="caption" placeholder="Подпись (необязательно)" />
+            <button class="btn" type="submit">Добавить</button>
+          </div>
+        </form>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Обновление заказа</div>
+          <div class="muted">статус, диагностика и согласование</div>
+        </div>
+      </div>
+
+      <form class="form" method="post" action="/orders/{{ order.order_id }}/update">
+        <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+        <div class="row">
+          <div style="flex:1">
+            <div class="label">Статус</div>
+            <select class="input" name="status">
+              {% for s in statuses %}
+                <option value="{{ s[0] }}" {{ 'selected' if order.status == s[0] else '' }}>{{ s[1] }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div style="flex:1">
+            <div class="label">Мастер</div>
+            <select class="input" name="assigned_master">
+              <option value="">—</option>
+              {% for m in masters %}
+                <option value="{{ m.username }}" {{ 'selected' if order.assigned_master == m.username else '' }}>{{ m.full_name or m.username }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div style="flex:1">
+            <div class="label">Срок (YYYY-MM-DD)</div>
+            <input class="input" name="due_date" value="{{ order.due_date or '' }}" />
+          </div>
+          <div style="flex:1">
+            <div class="label">Стоимость работ</div>
+            <input class="input" name="labor_cost" value="{{ labor_cost }}" />
+          </div>
+        </div>
+
+        <div>
+          <div class="label">Результат диагностики</div>
+          <input class="input" name="diagnostic_result" value="{{ order.diagnostic_result or '' }}" placeholder="Например: замена дисплея, пайка разъёма..." />
+        </div>
+
+        <div class="row">
+          <div style="flex:1">
+            <div class="label">Предварительная стоимость</div>
+            <input class="input" name="preliminary_cost" value="{{ order.preliminary_cost or '' }}" />
+          </div>
+          <div style="flex:1">
+            <div class="label">Согласование</div>
+            <select class="input" name="approval_status">
+              <option value="pending" {{ 'selected' if (order.approval_status or '') == 'pending' else '' }}>Ожидает</option>
+              <option value="approved" {{ 'selected' if (order.approval_status or '') == 'approved' else '' }}>Согласовано</option>
+              <option value="declined" {{ 'selected' if (order.approval_status or '') == 'declined' else '' }}>Отказ</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <div class="label">Причина отказа (если отказ)</div>
+          <input class="input" name="decline_reason" value="{{ order.decline_reason or '' }}" />
+        </div>
+
+        <div class="row">
+          <div style="flex:1">
+            <div class="label">Оплачено</div>
+            <input class="input" name="paid_amount" value="{{ order.paid_amount }}" />
+          </div>
+          <div style="flex:1"></div>
+        </div>
+
+        <div class="row">
+          <button class="btn btn-primary" type="submit">Сохранить</button>
+          <a class="btn" href="/orders">К списку</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Запчасти в заказе</div>
+          <div class="muted">списание со склада</div>
+        </div>
+      </div>
+
+      <div class="row" style="justify-content:space-between; margin-bottom:10px">
+        <div class="muted">Сумма запчастей: <b>{{ parts_cost }}</b></div>
+      </div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Наименование</th>
+            <th>Кол-во</th>
+            <th>Цена</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in parts %}
+          <tr>
+            <td><a href="/inventory/{{ p.sku }}"><code>{{ p.sku }}</code></a></td>
+            <td>{{ p.item_name }}</td>
+            <td>{{ p.quantity }}</td>
+            <td>{{ p.unit_price or "-" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if parts|length == 0 %}
+        <div class="muted">Пока нет списаний запчастей.</div>
+      {% endif %}
+
+      {% if user.role in ["admin","manager","master"] %}
+      <div style="height:12px"></div>
+      <form class="form" method="post" action="/orders/{{ order.order_id }}/add-part">
+        <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+        <div class="row">
+          <div style="flex:1">
+            <div class="label">Запчасть</div>
+            <select class="input" name="sku">
+              {% for i in inventory %}
+                <option value="{{ i.sku }}">{{ i.sku }} — {{ i.name }} (остаток: {{ i.stock_qty }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div style="width:120px">
+            <div class="label">Кол-во</div>
+            <input class="input" name="quantity" value="1" />
+          </div>
+        </div>
+        <button class="btn" type="submit">Списать в заказ</button>
+        <div class="hint">Если остатка недостаточно — появится событие на Dashboard.</div>
+      </form>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:14px">
+    <div class="card-head">
+      <div>
+        <div class="h2">История изменений</div>
+        <div class="muted">кто и что менял</div>
+      </div>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Время</th>
+          <th>Пользователь</th>
+          <th>Поле</th>
+          <th>Было</th>
+          <th>Стало</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for h in history %}
+        <tr>
+          <td>{{ h.changed_at }}</td>
+          <td>{{ h.actor or "-" }}</td>
+          <td>{{ h.field }}</td>
+          <td>{{ h.old_value }}</td>
+          <td>{{ h.new_value }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if history|length == 0 %}
+      <div class="muted">Истории пока нет.</div>
+    {% endif %}
+  </section>
+{% endblock %}

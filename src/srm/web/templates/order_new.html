@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% set title = "Новый заказ" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Новый заказ</h1>
+      <div class="muted">Создание заказа на ремонт (контрагент + устройство + неисправность)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    {% if error %}
+      <div class="alert">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="/orders/new">
+      <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+      <input type="hidden" name="client_mode" id="client_mode" value="existing" />
+      <input type="hidden" name="device_mode" id="device_mode" value="existing" />
+
+      <div class="section-title">Тип заказа</div>
+      <div class="form-grid">
+        <div class="card-flat">
+          <div class="label">Тип заказа</div>
+          <select class="input" name="order_type">
+            <option value="paid">Платный</option>
+            <option value="warranty">Гарантийный</option>
+          </select>
+        </div>
+        <div class="card-flat">
+          <div class="label">Номер заказа</div>
+          <input class="input" name="order_id" value="{{ next_id }}" />
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="section-title">Контрагент</div>
+
+      <div class="form-grid">
+        <div class="card-flat">
+          <div class="label">Контрагент (выберите из списка)</div>
+          <div class="row">
+            <select class="input" name="client_id" id="client_id" style="flex:1">
+              {% for c in clients %}
+                <option value="{{ c.client_id }}">{{ c.phone or "-" }} — {{ c.name }}</option>
+              {% endfor %}
+            </select>
+            <button class="btn" type="button" id="btn_new_client" title="Добавить контрагента">+</button>
+          </div>
+          <div class="hint">Нажмите “+”, чтобы создать нового контрагента прямо в заказе.</div>
+        </div>
+
+        <div class="card-flat" id="new_client_fields" style="display:none">
+          <div class="label">Новый контрагент</div>
+          <div class="row">
+            <div style="flex:1">
+              <div class="label">Телефон *</div>
+              <input class="input" name="new_client_phone" id="new_client_phone" placeholder="+7..." />
+            </div>
+            <div style="flex:1">
+              <div class="label">Имя *</div>
+              <input class="input" name="new_client_name" id="new_client_name" placeholder="Иван Петров" />
+            </div>
+          </div>
+          <div class="row">
+            <div style="flex:1">
+              <div class="label">Email</div>
+              <input class="input" name="new_client_email" placeholder="mail@example.com" />
+            </div>
+            <div style="flex:1">
+              <div class="label">Комментарий</div>
+              <input class="input" name="new_client_comment" placeholder="Примечания..." />
+            </div>
+          </div>
+          <div class="row" style="justify-content:flex-end">
+            <button class="btn" type="button" id="btn_cancel_new_client">Отменить</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="section-title">Устройство и неисправность</div>
+
+      <div class="form-grid">
+        <div class="card-flat">
+          <div class="label">Устройство (выберите из списка)</div>
+          <div class="row">
+            <select class="input" name="device_id" id="device_id" style="flex:1">
+              {% for d in devices %}
+                <option value="{{ d.device_id }}">{{ d.device_id }} — {{ d.brand }} {{ d.model }} ({{ d.device_type }})</option>
+              {% endfor %}
+            </select>
+            <button class="btn" type="button" id="btn_new_device" title="Добавить устройство">+</button>
+          </div>
+          <div class="hint">Нажмите “+”, чтобы добавить новое устройство (IMEI/Serial, состояние при приёмке).</div>
+        </div>
+
+        <div class="card-flat" id="new_device_fields" style="display:none">
+          <div class="label">Новое устройство</div>
+          <div class="row">
+            <div style="flex:1">
+              <div class="label">Тип устройства *</div>
+              <select class="input" name="new_device_type" id="new_device_type">
+                <option value="phone">Телефон</option>
+                <option value="tablet">Планшет</option>
+                <option value="laptop">Ноутбук</option>
+                <option value="watch">Смарт-часы</option>
+              </select>
+            </div>
+            <div style="flex:1">
+              <div class="label">IMEI/Serial</div>
+              <input class="input" name="new_device_serial" placeholder="3567... / C02..." />
+            </div>
+          </div>
+          <div class="row">
+            <div style="flex:1">
+              <div class="label">Бренд *</div>
+              <input class="input" name="new_device_brand" id="new_device_brand" placeholder="Apple" />
+            </div>
+            <div style="flex:1">
+              <div class="label">Модель *</div>
+              <input class="input" name="new_device_model" id="new_device_model" placeholder="iPhone 13" />
+            </div>
+          </div>
+          <div>
+            <div class="label">Состояние при приёмке</div>
+            <input class="input" name="new_device_condition" placeholder="Следы использования, сколы, царапины..." />
+          </div>
+          <div>
+            <div class="label">Описание дефектов</div>
+            <input class="input" name="new_device_defects" placeholder="Разбит экран, не заряжается..." />
+          </div>
+          <div class="row" style="justify-content:flex-end">
+            <button class="btn" type="button" id="btn_cancel_new_device">Отменить</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="card-flat">
+        <div class="label">Неисправность *</div>
+        <input class="input" name="issue" required placeholder="Например: не включается, разбит экран..." />
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="section-title">Дополнительная информация</div>
+
+      <div class="form-grid">
+        <div class="card-flat">
+          <div class="row">
+            <div style="flex:1">
+              <div class="label">Статус</div>
+              <select class="input" name="status">
+                {% for s in statuses %}
+                  <option value="{{ s[0] }}">{{ s[1] }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div style="flex:1">
+              <div class="label">Мастер</div>
+              <select class="input" name="assigned_master">
+                <option value="">—</option>
+                {% for m in masters %}
+                  <option value="{{ m.username }}">{{ m.full_name or m.username }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-flat">
+          <div class="row">
+            <div style="flex:1">
+              <div class="label">Крайний срок (YYYY-MM-DD)</div>
+              <input class="input" name="due_date" placeholder="2026-04-30" />
+            </div>
+            <div style="flex:1">
+              <div class="label">Ориентировочная цена</div>
+              <input class="input" name="preliminary_cost" placeholder="12000" />
+            </div>
+          </div>
+          <div>
+            <div class="label">Комментарий приёмщика</div>
+            <input class="input" name="comment" placeholder="Доп. сведения, комплектация, пожелания..." />
+          </div>
+        </div>
+      </div>
+
+      <div style="height:14px"></div>
+      <div class="row">
+        <button class="btn btn-primary" type="submit">Создать</button>
+        <a class="btn" href="/orders">Закрыть</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    (function(){
+      const clientMode = document.getElementById('client_mode');
+      const clientId = document.getElementById('client_id');
+      const newClient = document.getElementById('new_client_fields');
+      const btnNewClient = document.getElementById('btn_new_client');
+      const btnCancelClient = document.getElementById('btn_cancel_new_client');
+      const newClientPhone = document.getElementById('new_client_phone');
+      const newClientName = document.getElementById('new_client_name');
+
+      const deviceMode = document.getElementById('device_mode');
+      const deviceId = document.getElementById('device_id');
+      const newDevice = document.getElementById('new_device_fields');
+      const btnNewDevice = document.getElementById('btn_new_device');
+      const btnCancelDevice = document.getElementById('btn_cancel_new_device');
+      const newDevType = document.getElementById('new_device_type');
+      const newDevBrand = document.getElementById('new_device_brand');
+      const newDevModel = document.getElementById('new_device_model');
+
+      function setClientNew(on){
+        clientMode.value = on ? 'new' : 'existing';
+        newClient.style.display = on ? 'block' : 'none';
+        clientId.disabled = on;
+        newClientPhone.required = on;
+        newClientName.required = on;
+      }
+      function setDeviceNew(on){
+        deviceMode.value = on ? 'new' : 'existing';
+        newDevice.style.display = on ? 'block' : 'none';
+        deviceId.disabled = on;
+        newDevType.required = on;
+        newDevBrand.required = on;
+        newDevModel.required = on;
+      }
+
+      btnNewClient.addEventListener('click', () => setClientNew(true));
+      btnCancelClient.addEventListener('click', () => setClientNew(false));
+      btnNewDevice.addEventListener('click', () => setDeviceNew(true));
+      btnCancelDevice.addEventListener('click', () => setDeviceNew(false));
+    })();
+  </script>
+{% endblock %}

@@ -1,0 +1,259 @@
+{
+  "meta": {
+    "note": "Демонстрационный тестовый набор данных, сформированный для проверки сценариев работы системы"
+  },
+  "suppliers": [
+    { "supplier_id": "SUP-SCR-001", "name": "ScreenParts RU", "rating": 4.6, "approved": true, "status": "approved" },
+    { "supplier_id": "SUP-BAT-002", "name": "BatteryPro", "rating": 3.2, "approved": true, "status": "approved" },
+    { "supplier_id": "SUP-FLX-003", "name": "FlexCables", "rating": 4.1, "approved": true, "status": "approved" },
+    { "supplier_id": "SUP-MLB-004", "name": "BoardService", "rating": 2.4, "approved": false, "status": "risky" },
+    { "supplier_id": "SUP-CASE-005", "name": "CaseFactory", "rating": 4.8, "approved": true, "status": "approved" }
+  ],
+  "categories": [
+    { "code": "SCREEN", "name": "Дисплеи/экраны", "avg_price": 8500.0 },
+    { "code": "BATTERY", "name": "Аккумуляторы", "avg_price": 3200.0 },
+    { "code": "FLEX", "name": "Шлейфы/коннекторы", "avg_price": 900.0 },
+    { "code": "BOARD", "name": "Платы/микросхемы", "avg_price": 12500.0 },
+    { "code": "CASE", "name": "Корпуса/рамки", "avg_price": 2600.0 }
+  ],
+  "purchases": [
+    {
+      "purchase_id": "PO-0001",
+      "supplier_id": "SUP-SCR-001",
+      "category_code": "SCREEN",
+      "sku": "SCR-IP13-ORG",
+      "item_name": "Экран iPhone 13 (Original)",
+      "quantity": 10,
+      "unit_price": 9800.0,
+      "total_amount": 98000.0,
+      "planned_budget": 80000.0,
+      "warranty_months": 12,
+      "order_date": "2026-03-01",
+      "delivery_due_date": "2026-03-10",
+      "delivery_actual_date": "2026-03-18",
+      "status": "delivered",
+      "related_order_id": "ORD-0001"
+    },
+    {
+      "purchase_id": "PO-0002",
+      "supplier_id": "SUP-MLB-004",
+      "category_code": "BOARD",
+      "sku": "MB-SAMA52",
+      "item_name": "Материнская плата Samsung A52",
+      "quantity": 2,
+      "unit_price": 18000.0,
+      "total_amount": 36000.0,
+      "planned_budget": 40000.0,
+      "warranty_months": 0,
+      "order_date": "2026-03-05",
+      "delivery_due_date": "2026-03-20",
+      "delivery_actual_date": null,
+      "status": "ordered",
+      "related_order_id": "ORD-0002"
+    },
+    {
+      "purchase_id": "PO-0003",
+      "supplier_id": "SUP-BAT-002",
+      "category_code": "BATTERY",
+      "sku": "BAT-RN10",
+      "item_name": "Аккумулятор Xiaomi Redmi Note",
+      "quantity": 20,
+      "unit_price": 5200.0,
+      "total_amount": 104000.0,
+      "planned_budget": 120000.0,
+      "warranty_months": 6,
+      "order_date": "2026-03-02",
+      "delivery_due_date": "2026-03-12",
+      "delivery_actual_date": "2026-03-11",
+      "status": "delivered",
+      "related_order_id": null
+    },
+    {
+      "purchase_id": "PO-0004",
+      "supplier_id": "SUP-CASE-005",
+      "category_code": "CASE",
+      "sku": "CASE-IPADMINI",
+      "item_name": "Корпус iPad mini",
+      "quantity": 5,
+      "unit_price": 2500.0,
+      "total_amount": 12500.0,
+      "planned_budget": 15000.0,
+      "warranty_months": 12,
+      "order_date": "2026-03-03",
+      "delivery_due_date": "2026-03-15",
+      "delivery_actual_date": "2026-03-14",
+      "status": "delivered",
+      "related_order_id": null
+    },
+    {
+      "purchase_id": "PO-0005",
+      "supplier_id": "SUP-MLB-004",
+      "category_code": "FLEX",
+      "sku": "FLX-MBP14",
+      "item_name": "Шлейф MacBook Pro 14",
+      "quantity": 3,
+      "unit_price": 2400.0,
+      "total_amount": 7200.0,
+      "planned_budget": 6000.0,
+      "warranty_months": 0,
+      "order_date": "2026-03-08",
+      "delivery_due_date": "2026-03-16",
+      "delivery_actual_date": "2026-03-30",
+      "status": "delivered",
+      "related_order_id": "ORD-0003"
+    }
+  ],
+  "repairs": [
+    { "ticket_id": "R-0001", "device_type": "phone", "brand": "Apple", "model": "iPhone 13", "issue": "Разбит экран", "status": "new" },
+    { "ticket_id": "R-0002", "device_type": "phone", "brand": "Samsung", "model": "Galaxy A52", "issue": "Не включается", "status": "in_progress" },
+    { "ticket_id": "R-0003", "device_type": "laptop", "brand": "Apple", "model": "MacBook Pro 14", "issue": "Проблема со шлейфом", "status": "done" },
+    { "ticket_id": "R-0004", "device_type": "tablet", "brand": "Apple", "model": "iPad mini", "issue": "Замена корпуса", "status": "new" }
+  ],
+  "clients": [
+    { "client_id": "CL-0001", "name": "Иван Петров", "phone": "+7 999 111-22-33", "email": "ivan.petrov@example.com", "comment": "Просит звонить после 18:00", "balance": 0.0 },
+    { "client_id": "CL-0002", "name": "Мария Соколова", "phone": "+7 999 222-33-44", "email": "maria.sokolova@example.com", "comment": "Согласование только по телефону", "balance": 500.0 },
+    { "client_id": "CL-0003", "name": "ООО \"ТехПарк\"", "phone": "+7 495 000-00-00", "email": "it@techpark.example.com", "comment": "Корпоративный клиент", "balance": 0.0 }
+  ],
+  "devices": [
+    {
+      "device_id": "DEV-0001",
+      "client_id": "CL-0001",
+      "device_type": "phone",
+      "brand": "Apple",
+      "model": "iPhone 13",
+      "serial_or_imei": "356789012345678",
+      "intake_condition": "Следы использования, мелкие царапины на корпусе",
+      "defects_text": "Разбит экран, сенсор реагирует нестабильно",
+      "photo_path": null
+    },
+    {
+      "device_id": "DEV-0002",
+      "client_id": "CL-0002",
+      "device_type": "phone",
+      "brand": "Samsung",
+      "model": "Galaxy A52",
+      "serial_or_imei": "R58N1234ABC",
+      "intake_condition": "Хорошее состояние",
+      "defects_text": "Не включается, возможны проблемы с платой",
+      "photo_path": null
+    },
+    {
+      "device_id": "DEV-0003",
+      "client_id": "CL-0003",
+      "device_type": "laptop",
+      "brand": "Apple",
+      "model": "MacBook Pro 14",
+      "serial_or_imei": "C02ABC123XYZ",
+      "intake_condition": "Следы эксплуатации, потёртости",
+      "defects_text": "Проблема со шлейфом матрицы",
+      "photo_path": null
+    }
+  ],
+  "orders": [
+    {
+      "order_id": "ORD-0001",
+      "client_id": "CL-0001",
+      "device_id": "DEV-0001",
+      "issue": "Разбит экран",
+      "status": "diagnostics",
+      "assigned_master": "master",
+      "due_date": "2026-04-20",
+      "diagnostic_result": "Требуется замена дисплея",
+      "preliminary_cost": 15000.0,
+      "approval_status": "approved",
+      "decline_reason": null,
+      "labor_cost": 2500.0,
+      "paid_amount": 0.0
+    },
+    {
+      "order_id": "ORD-0002",
+      "client_id": "CL-0002",
+      "device_id": "DEV-0002",
+      "issue": "Не включается",
+      "status": "approval",
+      "assigned_master": "master",
+      "due_date": "2026-04-10",
+      "diagnostic_result": "Подозрение на неисправность платы",
+      "preliminary_cost": 8000.0,
+      "approval_status": "pending",
+      "decline_reason": null,
+      "labor_cost": 0.0,
+      "paid_amount": 0.0
+    },
+    {
+      "order_id": "ORD-0003",
+      "client_id": "CL-0003",
+      "device_id": "DEV-0003",
+      "issue": "Проблема со шлейфом",
+      "status": "in_repair",
+      "assigned_master": "master",
+      "due_date": "2026-04-05",
+      "diagnostic_result": "Замена шлейфа + чистка",
+      "preliminary_cost": 12000.0,
+      "approval_status": "approved",
+      "decline_reason": null,
+      "labor_cost": 3000.0,
+      "paid_amount": 6000.0
+    }
+  ],
+  "inventory": [
+    {
+      "sku": "SCR-IP13-ORG",
+      "name": "Экран iPhone 13 (Original)",
+      "category_code": "SCREEN",
+      "stock_qty": 1,
+      "min_stock_qty": 3,
+      "purchase_price": 9800.0,
+      "retail_price": 14500.0,
+      "warranty_months": 12,
+      "preferred_supplier_id": "SUP-SCR-001"
+    },
+    {
+      "sku": "BAT-RN10",
+      "name": "Аккумулятор Xiaomi Redmi Note",
+      "category_code": "BATTERY",
+      "stock_qty": 12,
+      "min_stock_qty": 5,
+      "purchase_price": 5200.0,
+      "retail_price": 7900.0,
+      "warranty_months": 6,
+      "preferred_supplier_id": "SUP-BAT-002"
+    },
+    {
+      "sku": "FLX-MBP14",
+      "name": "Шлейф MacBook Pro 14",
+      "category_code": "FLEX",
+      "stock_qty": 0,
+      "min_stock_qty": 2,
+      "purchase_price": 2400.0,
+      "retail_price": 4900.0,
+      "warranty_months": 3,
+      "preferred_supplier_id": "SUP-FLX-003"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "TSK-0001",
+      "title": "Связаться с клиентом по ORD-0002",
+      "description": "Уточнить согласование на ремонт и предварительную стоимость",
+      "status": "new",
+      "priority": "high",
+      "due_date": "2026-04-01",
+      "assigned_to": "manager",
+      "ref_type": "order",
+      "ref_id": "ORD-0002"
+    },
+    {
+      "task_id": "TSK-0002",
+      "title": "Проверить поставку PO-0002",
+      "description": "Плата для Samsung A52 от рискованного поставщика, контролировать сроки и гарантию",
+      "status": "in_progress",
+      "priority": "high",
+      "due_date": "2026-04-02",
+      "assigned_to": "analyst",
+      "ref_type": "purchase",
+      "ref_id": "PO-0002"
+    }
+  ]
+}
+

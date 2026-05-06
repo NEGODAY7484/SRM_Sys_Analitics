@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% set title = "SRM-аналитика" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">SRM-аналитика</h1>
+      <div class="muted">Поставщики · закупки · нарушения · риски · динамика</div>
+    </div>
+    {% if user.role in ["admin","analyst","manager"] %}
+      <form method="post" action="/runs/new">
+        <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+        <button class="btn btn-primary" type="submit">Запустить анализ</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <section class="bento">
+    <div class="bento-card">
+      <div class="kpi-title">Поставщики</div>
+      <div class="kpi-value">{{ metrics.suppliers_total }}</div>
+      <div class="kpi-foot muted">в базе</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Одобренные</div>
+      <div class="kpi-value">{{ metrics.suppliers_approved }}</div>
+      <div class="kpi-foot muted">approved</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Рискованные</div>
+      <div class="kpi-value">{{ metrics.suppliers_risky }}</div>
+      <div class="kpi-foot muted">risky / низкий рейтинг</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Заблокированные</div>
+      <div class="kpi-value">{{ metrics.suppliers_blocked }}</div>
+      <div class="kpi-foot muted">blocked</div>
+    </div>
+  </section>
+
+  <section class="bento">
+    <div class="bento-card">
+      <div class="kpi-title">Закупки</div>
+      <div class="kpi-value">{{ metrics.purchases_total }}</div>
+      <div class="kpi-foot muted">всего</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Закупки с нарушениями</div>
+      <div class="kpi-value">{{ metrics.purchases_with_violations }}</div>
+      <div class="kpi-foot muted">в последнем запуске</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Средний рейтинг</div>
+      <div class="kpi-value">{{ metrics.avg_supplier_rating }}</div>
+      <div class="kpi-foot muted">по поставщикам</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Средняя просрочка</div>
+      <div class="kpi-value">{{ metrics.avg_delivery_delay }}</div>
+      <div class="kpi-foot muted">дни (план/факт)</div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">ТОП рискованных поставщиков</div>
+          <div class="muted">интегральный risk score + объяснение</div>
+        </div>
+      </div>
+      {% if top_risks and top_risks|length > 0 %}
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Поставщик</th>
+              <th>Score</th>
+              <th>Уровень</th>
+              <th>Причины</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in top_risks %}
+            <tr>
+              <td><a href="/suppliers/{{ r.supplier_id }}"><code>{{ r.supplier_id }}</code></a></td>
+              <td>{{ r.score }}</td>
+              <td><span class="pill {{ 'pill-bad' if r.score_level in ['high','critical'] else ('pill-warn' if r.score_level == 'medium' else 'pill-ok') }}">{{ r.score_level }}</span></td>
+              <td>{{ r.reason or "-" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="muted">Пока нет рассчитанных risk score. Запустите анализ.</div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Нарушения по типам</div>
+          <div class="muted">сводка последнего запуска</div>
+        </div>
+      </div>
+      {% if by_type %}
+        <table class="table">
+          <thead><tr><th>Тип</th><th>Количество</th></tr></thead>
+          <tbody>
+            {% for k,v in by_type.items() %}
+              <tr><td><code>{{ k }}</code></td><td>{{ v }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="muted">Нет данных.</div>
+      {% endif %}
+    </div>
+  </section>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-head">
+      <div>
+        <div class="h2">Графики</div>
+        <div class="muted">генерируются при CLI и web-анализе</div>
+      </div>
+    </div>
+    {% if charts and charts|length > 0 %}
+      <div class="chart-grid">
+        {% for src in charts %}
+          <img class="chart-img" src="{{ src }}" alt="chart"/>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="muted">Графиков пока нет. Запустите анализ.</div>
+    {% endif %}
+  </div>
+{% endblock %}

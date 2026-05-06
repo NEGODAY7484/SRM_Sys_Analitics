@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Квитанция {{ doc.order_id }}</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <style>
+      body { background: #fff; }
+      .print-wrap { max-width: 820px; margin: 24px auto; padding: 18px; border: 1px solid #e5e7eb; border-radius: 16px; }
+      .print-head { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; }
+      .print-h1 { font-size: 22px; margin:0; }
+      .print-muted { color:#6b7280; font-size: 13px; }
+      .kv { display:grid; grid-template-columns: 200px 1fr; gap: 6px 12px; font-size: 14px; margin-top: 14px; }
+      .kv b { font-weight: 700; }
+      @media print { .noprint { display:none; } .print-wrap{ border:none; } }
+    </style>
+  </head>
+  <body>
+    <div class="print-wrap">
+      <div class="print-head">
+        <div>
+          <h1 class="print-h1">Квитанция о приёме устройства</h1>
+          <div class="print-muted">Заказ: <code>{{ doc.order_id }}</code> · Статус: {{ status_label }}</div>
+        </div>
+        <div class="noprint">
+          <button class="btn" onclick="window.print()">Печать</button>
+        </div>
+      </div>
+
+      <div class="kv">
+        <div class="print-muted">Дата приёма</div><div>{{ doc.created_at }}</div>
+        <div class="print-muted">Клиент</div><div>{{ doc.client_name }} · {{ doc.client_phone or "-" }}</div>
+        <div class="print-muted">Устройство</div><div>{{ doc.brand }} {{ doc.model }} ({{ doc.device_type }})</div>
+        <div class="print-muted">IMEI/Serial</div><div>{{ doc.serial_or_imei or "-" }}</div>
+        <div class="print-muted">Неисправность</div><div><b>{{ doc.issue }}</b></div>
+      </div>
+
+      <div style="height:16px"></div>
+      <div class="print-muted">
+        Устройство принято на диагностику/ремонт. Точная стоимость определяется по результатам диагностики и согласуется с клиентом.
+      </div>
+    </div>
+  </body>
+</html>
+

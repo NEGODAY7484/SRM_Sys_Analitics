@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% set title = "Нарушения" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Нарушения</h1>
+      <div class="muted">Единый журнал нарушений и рисков (SRM + операционные события)</div>
+    </div>
+    <div class="muted">Всего: <b>{{ meta.total }}</b> · Новых: <b>{{ meta.new_count }}</b></div>
+  </div>
+
+  <div class="card">
+    <div class="row" style="justify-content:space-between; margin-bottom:10px">
+      <div class="muted">Фильтры</div>
+      <form method="get" action="/violations" class="row">
+        <select class="input" name="type">
+          <option value="">Тип: все</option>
+          {% for t in types %}
+            <option value="{{ t }}" {{ 'selected' if filters.type == t else '' }}>{{ t }}</option>
+          {% endfor %}
+        </select>
+        <select class="input" name="supplier_id">
+          <option value="">Поставщик: все</option>
+          {% for s in suppliers %}
+            <option value="{{ s.supplier_id }}" {{ 'selected' if filters.supplier_id == s.supplier_id else '' }}>{{ s.supplier_id }} — {{ s.name }}</option>
+          {% endfor %}
+        </select>
+        <select class="input" name="risk">
+          <option value="">Риск: все</option>
+          {% for r in risks %}
+            <option value="{{ r }}" {{ 'selected' if filters.risk == r else '' }}>{{ r }}</option>
+          {% endfor %}
+        </select>
+        <select class="input" name="status">
+          <option value="">Статус: все</option>
+          {% for s in statuses %}
+            <option value="{{ s }}" {{ 'selected' if filters.status == s else '' }}>{{ s }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn" type="submit">Применить</button>
+      </form>
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Тип</th>
+          <th>Риск</th>
+          <th>Статус</th>
+          <th>Сущность</th>
+          <th>Поставщик</th>
+          <th>Сообщение</th>
+          <th>Вероятн.</th>
+          <th>Время</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in violations %}
+        <tr>
+          <td><a href="/violations/{{ v.violation_id }}"><code>{{ v.violation_id }}</code></a></td>
+          <td>{{ v.type }}</td>
+          <td><span class="pill {{ 'pill-bad' if v.risk_level == 'high' else ('pill-warn' if v.risk_level == 'medium' else 'pill-ok') }}">{{ v.risk_level }}</span></td>
+          <td><span class="pill pill-neutral">{{ v.status }}</span></td>
+          <td>{{ v.entity_type }} <code>{{ v.entity_id }}</code></td>
+          <td>{{ v.supplier_id or "-" }}</td>
+          <td>{{ v.message }}</td>
+          <td>{{ v.risk_probability or "-" }}</td>
+          <td>{{ v.created_at }}</td>
+        </tr>
+        <tr>
+          <td colspan="9">
+            <form method="post" action="/violations/{{ v.violation_id }}/status" class="row" style="gap:8px">
+              <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+              <select class="input" name="new_status">
+                {% for s in statuses %}
+                  <option value="{{ s }}" {{ 'selected' if v.status == s else '' }}>{{ s }}</option>
+                {% endfor %}
+              </select>
+              <input class="input" name="comment" placeholder="Комментарий (опционально)" style="flex:1" />
+              <button class="btn" type="submit">Обновить</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if violations|length == 0 %}
+      <div class="muted">Ничего не найдено по фильтрам.</div>
+    {% endif %}
+    {% include "_pagination.html" %}
+  </div>
+{% endblock %}

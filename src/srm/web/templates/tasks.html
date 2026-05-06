@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% set title = "Задачи" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Задачи</h1>
+      <div class="muted">Поручения сотрудникам и контроль дедлайнов</div>
+    </div>
+    {% if user.role in ["admin","manager"] %}
+      <a class="btn btn-primary" href="/tasks/new">Новая задача</a>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Заголовок</th>
+          <th>Статус</th>
+          <th>Приоритет</th>
+          <th>Дедлайн</th>
+          <th>Исполнитель</th>
+          <th>Связь</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tasks %}
+        <tr>
+          <td><code>{{ t.task_id }}</code></td>
+          <td>{{ t.title }}</td>
+          <td><span class="pill pill-neutral">{{ t.status_label }}</span></td>
+          <td>{{ t.priority }}</td>
+          <td>{{ t.due_date or "-" }}</td>
+          <td>{{ t.assigned_to or "-" }}</td>
+          <td>
+            {% if t.ref_type == 'order' %}
+              <a href="/orders/{{ t.ref_id }}"><code>{{ t.ref_id }}</code></a>
+            {% else %}
+              {{ t.ref_type or "-" }} {{ t.ref_id or "" }}
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if tasks|length == 0 %}
+      <div class="muted">Пока нет задач.</div>
+    {% endif %}
+  </div>
+{% endblock %}
+

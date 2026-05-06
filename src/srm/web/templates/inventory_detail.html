@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% set title = "Склад " ~ item.sku %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">{{ item.name }}</h1>
+      <div class="muted"><code>{{ item.sku }}</code> · категория: {{ item.category_code or "-" }} · поставщик: {{ item.preferred_supplier_id or "-" }}</div>
+    </div>
+    <div class="row">
+      <a class="btn" href="/inventory">К списку</a>
+    </div>
+  </div>
+
+  <section class="bento">
+    <div class="bento-card">
+      <div class="kpi-title">Остаток</div>
+      <div class="kpi-value">
+        {% if low_stock %}
+          <span style="color:#854d0e">{{ item.stock_qty }}</span>
+        {% else %}
+          {{ item.stock_qty }}
+        {% endif %}
+      </div>
+      <div class="kpi-foot muted">мин. {{ item.min_stock_qty }}</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Цена (розница)</div>
+      <div class="kpi-value">{{ item.retail_price if item.retail_price is not none else "-" }}</div>
+      <div class="kpi-foot muted">продажа клиенту</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Цена (закупка)</div>
+      <div class="kpi-value">{{ item.purchase_price if item.purchase_price is not none else "-" }}</div>
+      <div class="kpi-foot muted">закупочная</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Гарантия</div>
+      <div class="kpi-value">{{ item.warranty_months if item.warranty_months is not none else "-" }}</div>
+      <div class="kpi-foot muted">месяцев</div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Движения</div>
+          <div class="muted">приход/расход/корректировки</div>
+        </div>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Время</th>
+            <th>Δ</th>
+            <th>Причина</th>
+            <th>Ссылка</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in moves %}
+          <tr>
+            <td>{{ m.created_at }}</td>
+            <td>{{ m.delta_qty }}</td>
+            <td>{{ m.reason }}</td>
+            <td>
+              {% if m.ref_type == 'order' %}
+                <a href="/orders/{{ m.ref_id }}"><code>{{ m.ref_id }}</code></a>
+              {% else %}
+                {{ m.ref_type or "-" }} {{ m.ref_id or "" }}
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if moves|length == 0 %}
+        <div class="muted">Движений пока нет.</div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Фото и корректировка</div>
+          <div class="muted">карточка запчасти (admin/manager)</div>
+        </div>
+      </div>
+
+      {% if photo_url %}
+        <img class="photo" src="{{ photo_url }}" alt="Фото запчасти" />
+      {% else %}
+        <div class="muted">Фото запчасти пока не добавлено.</div>
+      {% endif %}
+
+      {% if user.role in ["admin","manager"] %}
+        <div style="height:10px"></div>
+        <form class="row" method="post" action="/inventory/{{ item.sku }}/photo" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+          <input class="input" type="file" name="photo" accept="image/*" required />
+          <button class="btn" type="submit">Загрузить</button>
+        </form>
+        <div style="height:14px"></div>
+
+        <form class="form" method="post" action="/inventory/{{ item.sku }}/adjust">
+          <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+          <div class="row">
+            <div style="flex:1">
+              <div class="label">Δ количество</div>
+              <input class="input" name="delta_qty" value="1" />
+            </div>
+            <div style="flex:2">
+              <div class="label">Причина</div>
+              <input class="input" name="reason" value="adjust" />
+            </div>
+          </div>
+          <button class="btn" type="submit">Применить</button>
+        </form>
+      {% else %}
+        <div style="height:14px"></div>
+        <div class="muted">Недоступно для вашей роли.</div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

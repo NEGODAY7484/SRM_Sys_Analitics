@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title or "CRM/SRM сервисного центра" }}</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">SC</div>
+        <div class="brand-text">
+          <div class="brand-title">Сервисный центр</div>
+          <div class="brand-subtitle">CRM/SRM: ремонты · склад · закупки · риски</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        {% if user %}
+        <div class="userpill">
+          <div class="userpill-name">{{ user.username }}</div>
+          <div class="userpill-role">{{ user.role }}</div>
+        </div>
+        <form method="post" action="/logout">
+          <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+          <button class="btn btn-ghost" type="submit">Выйти</button>
+        </form>
+        {% endif %}
+      </div>
+    </header>
+
+    {% if user %}
+    <nav class="sidebar">
+      {% from "_icons.html" import icon %}
+      {% set path = request.url.path %}
+
+      <div class="navgroup-title">Операции</div>
+      <a class="navlink {{ 'active' if path.startswith('/dashboard') else '' }}" href="/dashboard">{{ icon('dashboard') }}<span>Главная</span></a>
+      {% if user.role in ["admin","manager","master"] %}
+        <a class="navlink {{ 'active' if path.startswith('/orders') else '' }}" href="/orders">{{ icon('orders') }}<span>Заказы</span></a>
+        <a class="navlink {{ 'active' if path.startswith('/devices') else '' }}" href="/devices">{{ icon('devices') }}<span>Устройства</span></a>
+        <a class="navlink {{ 'active' if path.startswith('/inventory') else '' }}" href="/inventory">{{ icon('inventory') }}<span>Склад</span></a>
+        <a class="navlink {{ 'active' if path.startswith('/tasks') else '' }}" href="/tasks">{{ icon('tasks') }}<span>Задачи</span></a>
+      {% endif %}
+      {% if user.role in ["admin","manager"] %}
+        <a class="navlink {{ 'active' if path.startswith('/clients') else '' }}" href="/clients">{{ icon('clients') }}<span>Контрагенты</span></a>
+      {% endif %}
+
+      <div class="navgroup-title">SRM</div>
+      {% if user.role in ["admin","manager","analyst"] %}
+        <a class="navlink {{ 'active' if path.startswith('/srm') else '' }}" href="/srm">{{ icon('analytics') }}<span>SRM-аналитика</span></a>
+        <a class="navlink {{ 'active' if path.startswith('/srm/intelligent') else '' }}" href="/srm/intelligent">{{ icon('analytics') }}<span>Интеллектуальный SRM</span></a>
+        <a class="navlink {{ 'active' if path.startswith('/suppliers') else '' }}" href="/suppliers">{{ icon('suppliers') }}<span>Поставщики</span></a>
+        <a class="navlink {{ 'active' if path.startswith('/purchases') else '' }}" href="/purchases">{{ icon('purchases') }}<span>Закупки</span></a>
+        <a class="navlink {{ 'active' if path.startswith('/violations') else '' }}" href="/violations">{{ icon('violations') }}<span>Нарушения</span></a>
+        <a class="navlink {{ 'active' if path.startswith('/runs') else '' }}" href="/runs">{{ icon('reports') }}<span>Отчёты</span></a>
+      {% endif %}
+      <a class="navlink {{ 'active' if path.startswith('/rules') else '' }}" href="/rules">{{ icon('rules') }}<span>Правила</span></a>
+
+      <div class="navgroup-title">Система</div>
+      {% if user.role in ["admin","manager"] %}
+        <a class="navlink {{ 'active' if path.startswith('/settings') else '' }}" href="/settings">{{ icon('settings') }}<span>Настройки</span></a>
+      {% endif %}
+      {% if user.role in ["admin"] %}
+        <a class="navlink {{ 'active' if path.startswith('/security') else '' }}" href="/security">{{ icon('settings') }}<span>Безопасность</span></a>
+      {% endif %}
+    </nav>
+    {% endif %}
+
+    <main class="content">
+      {% block content %}{% endblock %}
+    </main>
+
+    <script src="/static/vendor/chart.umd.min.js"></script>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

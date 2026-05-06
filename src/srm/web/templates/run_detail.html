@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% set title = "Отчёт " ~ run.run_id %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Отчёт SRM</h1>
+      <div class="muted"><code>{{ run.run_id }}</code> · дата анализа: {{ run.analysis_date }} · запуск: {{ run.started_at }}</div>
+      {% if run.status and run.status != "success" %}
+        <div class="alert" style="margin-top:10px">Статус: {{ run.status }} · Ошибка: {{ run.error_message or "-" }}</div>
+      {% endif %}
+    </div>
+    <div class="row">
+      {% if report_url %}
+        <a class="btn btn-ghost" href="{{ report_url }}" target="_blank">Открыть JSON</a>
+      {% endif %}
+      {% if log_url %}
+        <a class="btn btn-ghost" href="{{ log_url }}" target="_blank">Открыть лог</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <section class="grid2">
+    <div class="card">
+      <div class="h2">Сводка</div>
+      <pre class="codeblock">{{ summary_pretty }}</pre>
+    </div>
+    <div class="card">
+      <div class="h2">Графики</div>
+      {% if charts and charts|length > 0 %}
+        <div class="chart-grid">
+          {% for src in charts %}
+            <img class="chart-img" src="{{ src }}" alt="chart"/>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="muted">Графиков нет.</div>
+      {% endif %}
+    </div>
+  </section>
+
+  <div class="card">
+    <div class="h2">Нарушения</div>
+    {% if violations and violations|length > 0 %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Закупка</th>
+            <th>Поставщик</th>
+            <th>Тип</th>
+            <th>Сообщение</th>
+            <th>Детали</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in violations %}
+          <tr>
+            <td><code>{{ v.purchase_id }}</code></td>
+            <td><code>{{ v.supplier_id }}</code></td>
+            <td><code>{{ v.type }}</code></td>
+            <td>{{ v.message }}</td>
+            <td><pre class="codeblock">{{ v.details_pretty }}</pre></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="muted">Нарушений не обнаружено.</div>
+    {% endif %}
+  </div>
+{% endblock %}

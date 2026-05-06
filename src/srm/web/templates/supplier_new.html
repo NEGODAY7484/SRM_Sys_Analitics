@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% set title = "Новый поставщик" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Новый поставщик</h1>
+      <div class="muted">Карточка поставщика запчастей/услуг</div>
+    </div>
+    <div class="row">
+      <a class="btn" href="/suppliers">К списку</a>
+    </div>
+  </div>
+
+  <div class="card">
+    {% if error %}
+      <div class="alert">{{ error }}</div>
+    {% endif %}
+
+    <form class="form" method="post" action="/suppliers/new">
+      <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">ID *</div>
+          <input class="input" name="supplier_id" value="{{ next_id }}" />
+        </div>
+        <div style="flex:2">
+          <div class="label">Название *</div>
+          <input class="input" name="name" placeholder="PartsSupplier" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">Статус</div>
+          <select class="input" name="status">
+            {% for s in statuses %}
+              <option value="{{ s }}" {{ 'selected' if s == 'candidate' else '' }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="flex:1">
+          <div class="label">Рейтинг</div>
+          <input class="input" name="rating" placeholder="4.5" />
+        </div>
+        <div style="flex:1">
+          <div class="label">Одобрен</div>
+          <select class="input" name="approved">
+            <option value="1" selected>да</option>
+            <option value="0">нет</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">Контактное лицо</div>
+          <input class="input" name="contact_person" placeholder="Иван Иванов" />
+        </div>
+        <div style="flex:1">
+          <div class="label">Телефон</div>
+          <input class="input" name="phone" placeholder="+7 ..." />
+        </div>
+        <div style="flex:1">
+          <div class="label">Email</div>
+          <input class="input" name="email" placeholder="mail@example.com" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">Средний срок поставки (дни)</div>
+          <input class="input" name="average_delivery_days" placeholder="5" />
+        </div>
+        <div style="flex:2">
+          <div class="label">Условия гарантии</div>
+          <input class="input" name="warranty_terms" placeholder="Например: 6 месяцев, обмен/возврат" />
+        </div>
+      </div>
+
+      <div>
+        <div class="label">Комментарий</div>
+        <input class="input" name="comment" placeholder="Примечания по поставщику" />
+      </div>
+
+      <button class="btn btn-primary" type="submit">Сохранить</button>
+      <div class="hint">Поля со звёздочкой обязательны.</div>
+    </form>
+  </div>
+{% endblock %}

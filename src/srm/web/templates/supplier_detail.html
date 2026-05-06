@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% set title = "Поставщик " ~ supplier.supplier_id %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">{{ supplier.name }}</h1>
+      <div class="muted"><code>{{ supplier.supplier_id }}</code> · статус: <b>{{ supplier.status or "-" }}</b> · рейтинг: <b>{{ supplier.rating if supplier.rating is not none else "-" }}</b></div>
+      <div class="muted">Контакт: {{ supplier.contact_person or "-" }} · {{ supplier.phone or "" }} {{ supplier.email or "" }}</div>
+    </div>
+    <div class="row">
+      <a class="btn" href="/suppliers">К списку</a>
+    </div>
+  </div>
+
+  <section class="grid2">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Карточка</div>
+          <div class="muted">параметры и специализация</div>
+        </div>
+      </div>
+      <div><b>Средний срок поставки:</b> {{ supplier.average_delivery_days if supplier.average_delivery_days is not none else "-" }} дней</div>
+      <div><b>Условия гарантии:</b> {{ supplier.warranty_terms or "-" }}</div>
+      <div><b>Комментарий:</b> {{ supplier.comment or "-" }}</div>
+
+      <div style="height:14px"></div>
+      <div class="h2">Рейтинг поставщика</div>
+      {% if rating_breakdown %}
+        <div class="muted">Обновлено: {{ rating_breakdown.calculated_at }}</div>
+        <div style="height:6px"></div>
+        <div><b>Рейтинг:</b> {{ rating_breakdown.rating }} / 5</div>
+        <div class="muted">
+          Факторы (0..1):
+          цена={{ rating_breakdown.factors.price if rating_breakdown.factors is defined else rating_breakdown.factors.get('price') }},
+          сроки={{ rating_breakdown.factors.get('delivery') }},
+          гарантия={{ rating_breakdown.factors.get('warranty') }},
+          нарушения={{ rating_breakdown.factors.get('violations') }}.
+        </div>
+        {% if rating_breakdown.explanation and rating_breakdown.explanation|length > 0 %}
+          <ul class="muted" style="margin:8px 0 0 18px">
+            {% for e in rating_breakdown.explanation %}
+              <li>{{ e }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% else %}
+        <div class="muted">Пока нет данных. Запустите анализ или выполните пересчёт рейтинга.</div>
+      {% endif %}
+
+      <div style="height:12px"></div>
+      <div class="h2">Категории</div>
+      {% if categories|length > 0 %}
+        <div class="muted">{{ categories|join(", ") }}</div>
+      {% else %}
+        <div class="muted">Не указаны.</div>
+      {% endif %}
+
+      {% if user.role in ["admin","manager"] %}
+        <div style="height:14px"></div>
+        <div class="h2">Обновить статус</div>
+        <form method="post" action="/suppliers/{{ supplier.supplier_id }}/update" class="row">
+          <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+          <select class="input" name="status">
+            {% for s in statuses %}
+              <option value="{{ s }}" {{ 'selected' if supplier.status == s else '' }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+          <input class="input" name="rating" value="{{ supplier.rating if supplier.rating is not none else '' }}" placeholder="Рейтинг" />
+          <button class="btn" type="submit">Сохранить</button>
+        </form>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Risk score</div>
+          <div class="muted">динамика интегрального риска</div>
+        </div>
+      </div>
+      {% if scores|length > 0 %}
+        <table class="table">
+          <thead><tr><th>Дата</th><th>Score</th><th>Уровень</th></tr></thead>
+          <tbody>
+            {% for s in scores %}
+            <tr>
+              <td>{{ s.score_date }}</td>
+              <td>{{ s.score }}</td>
+              <td><span class="pill {{ 'pill-bad' if s.score_level in ['high','critical'] else ('pill-warn' if s.score_level == 'medium' else 'pill-ok') }}">{{ s.score_level }}</span></td>
+            </tr>
+            <tr><td colspan="3" class="muted">{{ s.reason or "" }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="muted">Истории пока нет. Запустите анализ.</div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="grid2" style="margin-top:14px">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Закупки поставщика</div>
+          <div class="muted">последние 30</div>
+        </div>
+      </div>
+      {% if purchases|length > 0 %}
+        <table class="table">
+          <thead><tr><th>Закупка</th><th>Категория</th><th>Сумма</th><th>План</th><th>Факт</th></tr></thead>
+          <tbody>
+            {% for p in purchases %}
+            <tr>
+              <td><a href="/purchases/{{ p.purchase_id }}"><code>{{ p.purchase_id }}</code></a></td>
+              <td>{{ p.category_code or "-" }}</td>
+              <td>{{ p.total_amount }}</td>
+              <td>{{ p.delivery_due_date or "-" }}</td>
+              <td>{{ p.delivery_actual_date or "-" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="muted">Закупок пока нет.</div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Нарушения поставщика</div>
+          <div class="muted">последние 30</div>
+        </div>
+      </div>
+      {% if vio|length > 0 %}
+        <table class="table">
+          <thead><tr><th>Тип</th><th>Риск</th><th>Закупка</th><th>Описание</th><th>Дата</th></tr></thead>
+          <tbody>
+            {% for v in vio %}
+            <tr>
+              <td><code>{{ v.violation_type }}</code></td>
+              <td><span class="pill {{ 'pill-bad' if v.risk_level in ['high','critical'] else ('pill-warn' if v.risk_level == 'medium' else 'pill-ok') }}">{{ v.risk_level }}</span></td>
+              <td>{% if v.purchase_id %}<a href="/purchases/{{ v.purchase_id }}"><code>{{ v.purchase_id }}</code></a>{% else %}-{% endif %}</td>
+              <td>{{ v.description }}</td>
+              <td>{{ v.created_at }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="muted">Нарушений пока нет.</div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

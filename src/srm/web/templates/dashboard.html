@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% set title = "Главная" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Главная</h1>
+      <div class="muted">Ключевые показатели сервисного центра и результаты SRM-проверок</div>
+    </div>
+    {% if user.role in ["admin","analyst","manager"] %}
+    <form method="post" action="/runs/new">
+      <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+      <button class="btn btn-primary" type="submit">Аудит (SRM-проверка)</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <section class="bento">
+    <div class="bento-card">
+      <div class="kpi-title">Активные заказы</div>
+      <div class="kpi-value">{{ metrics.orders_active }}</div>
+      <div class="kpi-foot muted">в работе</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Клиенты</div>
+      <div class="kpi-value">{{ metrics.clients }}</div>
+      <div class="kpi-foot muted">в базе</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Склад: низкий остаток</div>
+      <div class="kpi-value">{{ metrics.low_stock }}</div>
+      <div class="kpi-foot muted">позиции ниже минимума</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">📦 Требуется закупка</div>
+      <div class="kpi-value">{{ metrics.purchase_needed }}</div>
+      <div class="kpi-foot muted">позиции ниже рекомендуемого</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Просроченные ремонты</div>
+      <div class="kpi-value">{{ metrics.overdue }}</div>
+      <div class="kpi-foot muted">срок меньше сегодня</div>
+    </div>
+  </section>
+
+  <section class="bento">
+    <div class="bento-card">
+      <div class="kpi-title">Поставщики</div>
+      <div class="kpi-value">{{ metrics.suppliers }}</div>
+      <div class="kpi-foot muted">активные карточки</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Закупки</div>
+      <div class="kpi-value">{{ metrics.purchases }}</div>
+      <div class="kpi-foot muted">заказы комплектующих</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Нарушения SRM</div>
+      <div class="kpi-value">{{ metrics.violations }}</div>
+      <div class="kpi-foot muted">в последней проверке</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Рисковые поставщики</div>
+      <div class="kpi-value">{{ metrics.risky_suppliers }}</div>
+      <div class="kpi-foot muted">не одобрены / низкий рейтинг</div>
+    </div>
+  </section>
+
+  <section class="bento">
+    <div class="bento-card">
+      <div class="kpi-title">Потери: превышение бюджета</div>
+      <div class="kpi-value">{{ decision_support.loss_overspend_total }}</div>
+      <div class="kpi-foot muted">₽ (последний аудит)</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Потери: просрочки поставки</div>
+      <div class="kpi-value">{{ decision_support.loss_delivery_delay_total }}</div>
+      <div class="kpi-foot muted">₽ (оценка)</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Средний риск поставщиков</div>
+      <div class="kpi-value">{{ decision_support.avg_supplier_risk_score }}</div>
+      <div class="kpi-foot muted">0–100</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Записей с высоким риском</div>
+      <div class="kpi-value">{{ decision_support.high_risk_purchases }}</div>
+      <div class="kpi-foot muted">risk_probability ≥ 0.7</div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Интерактивные графики</div>
+          <div class="muted">локально, без интернета (Chart.js)</div>
+        </div>
+      </div>
+      <script>
+        window.SRM_DASHBOARD_DATA = {{ chart_data | tojson }};
+      </script>
+      <div class="chart-stack">
+        <canvas id="chart-violations-by-type" height="140"></canvas>
+        <div style="height:12px"></div>
+        <canvas id="chart-violations-timeline" height="140"></canvas>
+        <div style="height:12px"></div>
+        <canvas id="chart-top-risk-suppliers" height="140"></canvas>
+      </div>
+
+      <div style="height:14px"></div>
+      <div class="h2">Heatmap (нарушения)</div>
+      <div class="muted">День недели × тип нарушения (последние 30 дней)</div>
+      <div class="heatmap" style="grid-template-columns: 120px repeat({{ heatmap.types|length }}, minmax(80px, 1fr));">
+        <div class="heatmap-head"></div>
+        {% for t in heatmap.types %}
+          <div class="heatmap-head"><code>{{ t }}</code></div>
+        {% endfor %}
+        {% for row in heatmap.rows %}
+          <div class="heatmap-head"><b>{{ row.day }}</b></div>
+          {% for cell in row.cells %}
+            <div class="heatmap-cell" title="{{ row.day }} / {{ cell.type }}: {{ cell.count }}" style="background: rgba(59,130,246, {{ cell.alpha }});">
+              {{ cell.count }}
+            </div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+
+      <div style="height:14px"></div>
+      <details>
+        <summary class="muted">Показать PNG-артефакты последнего аудита</summary>
+        <div style="height:10px"></div>
+        {% if charts and charts|length > 0 %}
+          <div class="chart-grid">
+            {% for src in charts %}
+              <img class="chart-img" src="{{ src }}" alt="chart"/>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="muted">Пока нет PNG-артефактов. Запустите аудит.</div>
+        {% endif %}
+      </details>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Последние проверки</div>
+          <div class="muted">история запусков анализа</div>
+        </div>
+      </div>
+      {% if last_checks and last_checks|length > 0 %}
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Run ID</th>
+              <th>Дата анализа</th>
+              <th>Нарушений</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in last_checks %}
+            <tr>
+              <td><a href="/runs/{{ r.run_id }}">{{ r.run_id }}</a></td>
+              <td>{{ r.analysis_date }}</td>
+              <td>{{ r.violations_total }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="muted">Запусков ещё нет.</div>
+      {% endif %}
+
+      <div style="height:12px"></div>
+      <div class="h2">События</div>
+      {% if notifications and notifications|length > 0 %}
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Время</th>
+              <th>Сообщение</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for n in notifications %}
+            <tr>
+              <td>{{ n.created_at }}</td>
+              <td>{{ n.message }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="muted">Событий пока нет.</div>
+      {% endif %}
+
+      <div style="height:12px"></div>
+      <div class="h2">Рекомендации по закупке</div>
+      <div class="muted">ТОП-5: что докупить по истории списаний</div>
+      {% if purchase_recs and purchase_recs|length > 0 %}
+        <table class="table">
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Остаток</th>
+              <th>Докупить</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in purchase_recs %}
+            <tr>
+              <td><a href="/inventory/{{ r.sku }}"><code>{{ r.sku }}</code></a></td>
+              <td>{{ r.current_stock }}</td>
+              <td><b>{{ r.purchase_needed }}</b></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="row" style="justify-content:flex-end">
+          <a class="btn btn-sm" href="/inventory/recommendations">Открыть все</a>
+        </div>
+      {% else %}
+        <div class="muted">Пока нет рекомендаций. Нужна история списаний (использование запчастей в заказах).</div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

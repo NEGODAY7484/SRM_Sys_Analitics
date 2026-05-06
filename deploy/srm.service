@@ -1,0 +1,17 @@
+[Unit]
+Description=CRM/SRM Service Center (FastAPI)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/srm
+EnvironmentFile=/opt/srm/.env
+ExecStart=/opt/srm/.venv/bin/uvicorn srm.api.app:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=3
+User=srm
+Group=srm
+
+[Install]
+WantedBy=multi-user.target
+

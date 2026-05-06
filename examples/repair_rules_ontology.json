@@ -1,0 +1,141 @@
+{
+  "version": "2.0-repair",
+  "meta": {
+    "domain": "service_center_repair",
+    "note": "Демонстрационный набор правил для сервисного центра по ремонту техники"
+  },
+  "budget": {
+    "mode": "per_record",
+    "tolerance_pct": 0.0
+  },
+  "suppliers": {
+    "blacklist": [],
+    "whitelist": [
+      "SUP-SCR-001",
+      "SUP-BAT-002",
+      "SUP-FLX-003",
+      "SUP-CASE-005"
+    ]
+  },
+  "delivery": {
+    "allowed_delay_days": 2,
+    "consider_undelivered_as_violation": true
+  },
+  "risk": {
+    "min_supplier_rating": 3.0
+  },
+  "warranty": {
+    "required_min_months": 3,
+    "required_for_categories": ["SCREEN", "BATTERY", "BOARD"]
+  },
+  "price": {
+    "max_over_avg_pct": 35.0
+  },
+  "recurrence": {
+    "supplier_violations_threshold": 2
+  },
+  "finance": {
+    "delay_penalty_pct_per_day": 0.2,
+    "delay_penalty_rub_per_day": 50.0
+  },
+  "predictions": {
+    "base_delay_probability": 0.2,
+    "base_budget_probability": 0.15,
+    "history_smoothing": 1.0,
+    "rating_weight": 0.08,
+    "status_weight": 0.18
+  },
+  "rules": [
+    {
+      "rule_code": "BUDGET_EXCEEDED",
+      "rule_name": "Превышение бюджета закупки",
+      "rule_type": "budget",
+      "target_entity": "purchase",
+      "condition": "planned_budget is not None and planned_budget > 0 and total_amount > planned_budget * (1 + tolerance_pct/100)",
+      "threshold": { "tolerance_pct": 0.0 },
+      "weight": 0.30,
+      "risk_impact": "financial",
+      "explanation_template": "Сумма закупки превышает плановый бюджет на {excess_pct}%",
+      "recommendation_template": "Рекомендуется пересогласовать бюджет или выбрать альтернативного поставщика",
+      "is_active": true
+    },
+    {
+      "rule_code": "DISALLOWED_SUPPLIER_WHITELIST",
+      "rule_name": "Поставщик не входит в список одобренных",
+      "rule_type": "supplier_status",
+      "target_entity": "purchase",
+      "condition": "whitelist is not None and supplier_id not in whitelist",
+      "threshold": {},
+      "weight": 0.22,
+      "risk_impact": "compliance",
+      "explanation_template": "Поставщик {supplier_id} не входит в список одобренных (whitelist)",
+      "recommendation_template": "Рекомендуется заменить поставщика на одобренного и провести ручную проверку",
+      "is_active": true
+    },
+    {
+      "rule_code": "DELIVERY_DELAY",
+      "rule_name": "Нарушение сроков поставки",
+      "rule_type": "delivery",
+      "target_entity": "purchase",
+      "condition": "delay_days is not None and delay_days > allowed_delay_days",
+      "threshold": { "allowed_delay_days": 2, "consider_undelivered_as_violation": true },
+      "weight": 0.22,
+      "risk_impact": "delivery",
+      "explanation_template": "Срок поставки нарушен на {delay_days} дн. (допуск {allowed_delay_days} дн.)",
+      "recommendation_template": "Рекомендуется зафиксировать новый срок и применить санкции/изменить условия поставки",
+      "is_active": true
+    },
+    {
+      "rule_code": "LOW_SUPPLIER_RATING",
+      "rule_name": "Низкий рейтинг поставщика",
+      "rule_type": "risk",
+      "target_entity": "purchase",
+      "condition": "supplier_rating is not None and supplier_rating < min_supplier_rating",
+      "threshold": { "min_supplier_rating": 3.0 },
+      "weight": 0.18,
+      "risk_impact": "reputation",
+      "explanation_template": "Рейтинг поставщика ниже порога: {supplier_rating} < {min_supplier_rating}",
+      "recommendation_template": "Рекомендуется ограничить закупки и рассмотреть альтернативных поставщиков",
+      "is_active": true
+    },
+    {
+      "rule_code": "WARRANTY_MISSING",
+      "rule_name": "Отсутствует/недостаточная гарантия",
+      "rule_type": "warranty",
+      "target_entity": "purchase",
+      "condition": "required_min_months > 0 and (warranty_months is None or warranty_months < required_min_months)",
+      "threshold": { "required_min_months": 3 },
+      "weight": 0.16,
+      "risk_impact": "quality",
+      "explanation_template": "Гарантия {warranty_months} мес. меньше требования {required_min_months} мес.",
+      "recommendation_template": "Рекомендуется запросить гарантийные условия или заменить поставщика/позицию",
+      "is_active": true
+    },
+    {
+      "rule_code": "PRICE_OUTLIER",
+      "rule_name": "Завышенная цена относительно средней по категории",
+      "rule_type": "price",
+      "target_entity": "purchase",
+      "condition": "unit_price is not None and category_avg_price is not None and category_avg_price > 0 and unit_price > category_avg_price * (1 + max_over_avg_pct/100)",
+      "threshold": { "max_over_avg_pct": 35.0 },
+      "weight": 0.14,
+      "risk_impact": "financial",
+      "explanation_template": "Цена выше средней по категории на {over_pct}% (порог {max_over_avg_pct}%)",
+      "recommendation_template": "Рекомендуется запросить скидку или выбрать альтернативного поставщика",
+      "is_active": true
+    },
+    {
+      "rule_code": "REPEAT_VIOLATIONS",
+      "rule_name": "Повторяющиеся нарушения у поставщика",
+      "rule_type": "repeat",
+      "target_entity": "supplier",
+      "condition": "supplier_violations_count >= supplier_violations_threshold",
+      "threshold": { "supplier_violations_threshold": 2, "window_days": 30 },
+      "weight": 0.20,
+      "risk_impact": "mixed",
+      "explanation_template": "У поставщика {supplier_id} повторяющиеся нарушения: {supplier_violations_count} (порог {supplier_violations_threshold})",
+      "recommendation_template": "Рекомендуется провести аудит поставщика и временно ограничить закупки",
+      "is_active": true
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% set title = "Клиент " ~ client.client_id %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">{{ client.name }}</h1>
+      <div class="muted"><code>{{ client.client_id }}</code> · {{ client.phone or "-" }} · {{ client.email or "-" }}</div>
+    </div>
+    <div class="row">
+      <a class="btn" href="/devices/new">Добавить устройство</a>
+      <a class="btn btn-primary" href="/orders/new">Новый заказ</a>
+    </div>
+  </div>
+
+  <section class="bento">
+    <div class="bento-card">
+      <div class="kpi-title">Баланс</div>
+      <div class="kpi-value">{{ client.balance }}</div>
+      <div class="kpi-foot muted">взаиморасчёты</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Устройства</div>
+      <div class="kpi-value">{{ devices|length }}</div>
+      <div class="kpi-foot muted">в системе</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Заказы</div>
+      <div class="kpi-value">{{ orders|length }}</div>
+      <div class="kpi-foot muted">история ремонтов</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Создан</div>
+      <div class="kpi-value" style="font-size:18px">{{ client.created_at }}</div>
+      <div class="kpi-foot muted">время регистрации</div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Устройства</div>
+          <div class="muted">привязанные к клиенту</div>
+        </div>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Тип</th>
+            <th>Модель</th>
+            <th>IMEI/Serial</th>
+            <th>Создано</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in devices %}
+          <tr>
+            <td><a href="/devices/{{ d.device_id }}"><code>{{ d.device_id }}</code></a></td>
+            <td>{{ d.device_type }}</td>
+            <td>{{ d.brand }} {{ d.model }}</td>
+            <td>{{ d.serial_or_imei or "-" }}</td>
+            <td>{{ d.created_at }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if devices|length == 0 %}
+        <div class="muted">Пока нет устройств.</div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">История заказов</div>
+          <div class="muted">последние обращения клиента</div>
+        </div>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Заказ</th>
+            <th>Статус</th>
+            <th>Устройство</th>
+            <th>Срок</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in orders %}
+          <tr>
+            <td><a href="/orders/{{ o.order_id }}"><code>{{ o.order_id }}</code></a></td>
+            <td><span class="pill pill-neutral">{{ o.status_label }}</span></td>
+            <td>{{ o.brand }} {{ o.model }}</td>
+            <td>{{ o.due_date or "-" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if orders|length == 0 %}
+        <div class="muted">Пока нет заказов.</div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

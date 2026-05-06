@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% set title = "Заказы" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Заказы</h1>
+      <div class="muted">Список заказов, статусы, сроки и контрагенты</div>
+    </div>
+    {% if user.role in ["admin","manager"] %}
+      <a class="btn btn-primary" href="/orders/new">Создать</a>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <form method="get" action="/orders" class="row" style="justify-content:space-between; margin-bottom:10px; flex-wrap:wrap">
+      <div class="row" style="flex-wrap:wrap">
+        <div>
+          <div class="label">Статус</div>
+          <select class="input" name="status">
+            <option value="">Все</option>
+            {% for s in statuses %}
+              <option value="{{ s[0] }}" {{ 'selected' if selected_status == s[0] else '' }}>{{ s[1] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <div class="label">Номер заказа</div>
+          <input class="input" name="q" value="{{ q }}" placeholder="ORD-0007" />
+        </div>
+        <div>
+          <div class="label">Дата с</div>
+          <input class="input" type="date" name="date_from" value="{{ date_from }}" />
+        </div>
+        <div>
+          <div class="label">Дата по</div>
+          <input class="input" type="date" name="date_to" value="{{ date_to }}" />
+        </div>
+        <div>
+          <div class="label">Сортировка</div>
+          <select class="input" name="sort">
+            <option value="created_desc" {{ 'selected' if sort == 'created_desc' else '' }}>Сначала новые</option>
+            <option value="created_asc" {{ 'selected' if sort == 'created_asc' else '' }}>Сначала старые</option>
+            <option value="order_asc" {{ 'selected' if sort == 'order_asc' else '' }}>Номер ↑</option>
+            <option value="order_desc" {{ 'selected' if sort == 'order_desc' else '' }}>Номер ↓</option>
+            <option value="due_asc" {{ 'selected' if sort == 'due_asc' else '' }}>Срок ↑</option>
+            <option value="due_desc" {{ 'selected' if sort == 'due_desc' else '' }}>Срок ↓</option>
+          </select>
+        </div>
+      </div>
+      <div class="row" style="align-self:flex-end">
+        <button class="btn" type="submit">Фильтровать</button>
+        <a class="btn" href="/orders">Сбросить</a>
+      </div>
+    </form>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Заказ</th>
+          <th>Статус</th>
+          <th>Крайний срок</th>
+          <th>Менеджер</th>
+          <th>Тип заказа</th>
+          <th>Тип устройства</th>
+          <th>Устройство</th>
+          <th>Неисправность</th>
+          <th>Контрагент</th>
+          <th>Сумма</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td><a href="/orders/{{ o.order_id }}"><code>{{ o.order_id }}</code></a></td>
+          <td>
+            <div class="row" style="gap:8px; align-items:center">
+              <span class="pill pill-neutral">{{ o.status_label }}</span>
+              {% if user.role in ["admin","manager","master"] %}
+                <form method="post" action="/orders/{{ o.order_id }}/status" class="row" style="gap:6px">
+                  <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+                  <select class="input input-sm" name="status">
+                    {% for s in statuses %}
+                      <option value="{{ s[0] }}" {{ 'selected' if o.status == s[0] else '' }}>{{ s[1] }}</option>
+                    {% endfor %}
+                  </select>
+                  <button class="btn btn-sm" type="submit">OK</button>
+                </form>
+              {% endif %}
+            </div>
+          </td>
+          <td>{{ o.due_date or "-" }}</td>
+          <td>{{ o.manager_username or "-" }}</td>
+          <td>{{ o.order_type_label }}</td>
+          <td>{{ o.device_type }}</td>
+          <td>{{ o.brand }} {{ o.model }}</td>
+          <td>{{ o.issue }}</td>
+          <td>
+            <a href="/clients/{{ o.client_id }}">{{ o.client_name }}</a>
+            <div class="muted" style="font-size:12px">{{ o.client_phone or "" }}</div>
+          </td>
+          <td>{{ o.total_cost }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if orders|length == 0 %}
+      <div class="muted">Пока нет заказов по выбранному фильтру.</div>
+    {% endif %}
+    {% include "_pagination.html" %}
+  </div>
+{% endblock %}

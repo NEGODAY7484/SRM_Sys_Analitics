@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% set title = "Поставщики" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Поставщики</h1>
+      <div class="muted">SRM-справочник: статусы, рейтинг, специализация, история закупок и нарушений</div>
+    </div>
+    {% if user.role in ["admin","manager"] %}
+      <a class="btn btn-primary" href="/suppliers/new">Добавить</a>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <form method="get" action="/suppliers" class="row" style="justify-content:space-between; flex-wrap:wrap; margin-bottom:10px">
+      <div class="row" style="flex-wrap:wrap">
+        <div>
+          <div class="label">Статус</div>
+          <select class="input" name="status">
+            <option value="">Все</option>
+            {% for s in statuses %}
+              <option value="{{ s }}" {{ 'selected' if filters.status == s else '' }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <div class="label">Категория</div>
+          <select class="input" name="category">
+            <option value="">Все</option>
+            {% for c in categories %}
+              <option value="{{ c.code }}" {{ 'selected' if filters.category == c.code else '' }}>{{ c.code }} — {{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <div class="label">Рейтинг ≥</div>
+          <input class="input" name="min_rating" value="{{ filters.min_rating }}" placeholder="3.0" />
+        </div>
+        <div>
+          <div class="label">Поиск</div>
+          <input class="input" name="q" value="{{ filters.q }}" placeholder="ScreenParts / SUP-..." />
+        </div>
+      </div>
+      <div class="row" style="align-self:flex-end">
+        <button class="btn" type="submit">Фильтровать</button>
+        <a class="btn" href="/suppliers">Сбросить</a>
+      </div>
+    </form>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Название</th>
+          <th>Статус</th>
+          <th>Рейтинг</th>
+          <th>Контакты</th>
+          <th>Ср. срок поставки</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in suppliers %}
+        <tr>
+          <td><a href="/suppliers/{{ s.supplier_id }}"><code>{{ s.supplier_id }}</code></a></td>
+          <td>{{ s.name }}</td>
+          <td><span class="pill pill-neutral">{{ s.status or ('approved' if s.approved == 1 else '-') }}</span></td>
+          <td>{{ s.rating if s.rating is not none else "-" }}</td>
+          <td>
+            <div class="muted">{{ s.contact_person or "-" }}</div>
+            <div class="muted" style="font-size:12px">{{ s.phone or "" }} {{ s.email or "" }}</div>
+          </td>
+          <td>{{ s.average_delivery_days if s.average_delivery_days is not none else "-" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if suppliers|length == 0 %}
+      <div class="muted">Поставщиков по выбранным фильтрам нет.</div>
+    {% endif %}
+    {% include "_pagination.html" %}
+  </div>
+{% endblock %}

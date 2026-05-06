@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% set title = "Склад" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Склад запчастей</h1>
+      <div class="muted">Остатки, цены, минимальные запасы и гарантия</div>
+    </div>
+    <div class="row">
+      {% if user.role in ["admin","manager","analyst"] %}
+        <a class="btn" href="/inventory/recommendations">Рекомендации по закупке</a>
+      {% endif %}
+      {% if user.role in ["admin","manager"] %}
+        <a class="btn btn-primary" href="/inventory/new">Новая позиция</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>SKU</th>
+          <th>Наименование</th>
+          <th>Категория</th>
+          <th>Остаток</th>
+          <th>Мин.</th>
+          <th>Цена</th>
+          <th>Гарантия</th>
+          <th>Поставщик</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in items %}
+        <tr>
+          <td><a href="/inventory/{{ i.sku }}"><code>{{ i.sku }}</code></a></td>
+          <td>{{ i.name }}</td>
+          <td>{{ i.category_code or "-" }}</td>
+          <td>
+            {% if i.low_stock %}
+              <span class="pill pill-warn">{{ i.stock_qty }}</span>
+            {% else %}
+              {{ i.stock_qty }}
+            {% endif %}
+          </td>
+          <td>{{ i.min_stock_qty }}</td>
+          <td>{{ i.retail_price if i.retail_price is not none else "-" }}</td>
+          <td>{{ i.warranty_months if i.warranty_months is not none else "-" }}</td>
+          <td>{{ i.supplier_name or "-" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if items|length == 0 %}
+      <div class="muted">Пока нет позиций на складе.</div>
+    {% endif %}
+  </div>
+{% endblock %}

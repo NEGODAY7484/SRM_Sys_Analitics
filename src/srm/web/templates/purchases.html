@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% set title = "Закупки" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Закупки</h1>
+      <div class="muted">Заказы запчастей у поставщиков: план/факт, бюджеты, гарантия, статусы</div>
+    </div>
+    <div class="row">
+      {% if user.role in ["admin","manager"] %}
+        <a class="btn btn-primary" href="/purchases/new">Создать</a>
+        <a class="btn" href="/purchases/import">Импорт</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <form method="get" action="/purchases" class="row" style="justify-content:space-between; flex-wrap:wrap; margin-bottom:10px">
+      <div class="row" style="flex-wrap:wrap">
+        <div>
+          <div class="label">Поставщик</div>
+          <select class="input" name="supplier_id">
+            <option value="">Все</option>
+            {% for s in suppliers %}
+              <option value="{{ s.supplier_id }}" {{ 'selected' if filters.supplier_id == s.supplier_id else '' }}>{{ s.supplier_id }} — {{ s.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <div class="label">Статус</div>
+          <select class="input" name="status">
+            <option value="">Все</option>
+            {% for s in statuses %}
+              <option value="{{ s }}" {{ 'selected' if filters.status == s else '' }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <div class="label">Категория</div>
+          <select class="input" name="category_code">
+            <option value="">Все</option>
+            {% for c in categories %}
+              <option value="{{ c.code }}" {{ 'selected' if filters.category_code == c.code else '' }}>{{ c.code }} — {{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <div class="label">Дата с</div>
+          <input class="input" type="date" name="date_from" value="{{ filters.date_from }}" />
+        </div>
+        <div>
+          <div class="label">Дата по</div>
+          <input class="input" type="date" name="date_to" value="{{ filters.date_to }}" />
+        </div>
+        <div>
+          <div class="label">Поиск</div>
+          <input class="input" name="q" value="{{ filters.q }}" placeholder="PO-0007 / дисплей" />
+        </div>
+      </div>
+      <div class="row" style="align-self:flex-end">
+        <button class="btn" type="submit">Фильтровать</button>
+        <a class="btn" href="/purchases">Сбросить</a>
+      </div>
+    </form>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Закупка</th>
+          <th>Поставщик</th>
+          <th>Категория</th>
+          <th>Товар</th>
+          <th>Кол-во</th>
+          <th>Цена</th>
+          <th>Сумма</th>
+          <th>Бюджет</th>
+          <th>Статус</th>
+          <th>План</th>
+          <th>Факт</th>
+          <th>Гарантия</th>
+          <th>Связь</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in purchases %}
+        <tr>
+          <td><a href="/purchases/{{ p.purchase_id }}"><code>{{ p.purchase_id }}</code></a></td>
+          <td><a href="/suppliers/{{ p.supplier_id }}"><code>{{ p.supplier_id }}</code></a><div class="muted" style="font-size:12px">{{ p.supplier_name or "" }}</div></td>
+          <td>{{ p.category_code or "-" }}</td>
+          <td>{{ p.item_name or "-" }}</td>
+          <td>{{ p.quantity if p.quantity is not none else "-" }}</td>
+          <td>{{ p.unit_price if p.unit_price is not none else "-" }}</td>
+          <td>{{ p.total_amount }}</td>
+          <td>{{ p.planned_budget if p.planned_budget is not none else "-" }}</td>
+          <td><span class="pill pill-neutral">{{ p.status or "-" }}</span></td>
+          <td>{{ p.delivery_due_date or "-" }}</td>
+          <td>{{ p.delivery_actual_date or "-" }}</td>
+          <td>{{ p.warranty_months if p.warranty_months is not none else "-" }}</td>
+          <td>{% if p.related_order_id %}<a href="/orders/{{ p.related_order_id }}"><code>{{ p.related_order_id }}</code></a>{% else %}-{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if purchases|length == 0 %}
+      <div class="muted">Закупок по выбранным фильтрам нет.</div>
+    {% endif %}
+    {% include "_pagination.html" %}
+  </div>
+{% endblock %}

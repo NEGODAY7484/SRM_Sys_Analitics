@@ -1,0 +1,32 @@
+{% macro icon(name) -%}
+  {# Minimal local SVG icon set (no external CDNs). #}
+  {% if name == "dashboard" %}
+    <svg class="navicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+  {% elif name == "orders" %}
+    <svg class="navicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a2 2 0 0 1 2 2v17l-3-2-3 2-3-2-3 2V4a2 2 0 0 1 2-2zm2 6h6v2H9V8zm0 4h6v2H9v-2z"/></svg>
+  {% elif name == "clients" %}
+    <svg class="navicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 11c1.66 0 3-1.57 3-3.5S17.66 4 16 4s-3 1.57-3 3.5S14.34 11 16 11zM8 11c1.66 0 3-1.57 3-3.5S9.66 4 8 4 5 5.57 5 7.5 6.34 11 8 11zm0 2c-2.33 0-7 1.17-7 3.5V20h14v-3.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.93 1.97 3.45V20h7v-3.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+  {% elif name == "devices" %}
+    <svg class="navicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 3v14h10V5H7zm4 15h2v1h-2v-1z"/></svg>
+  {% elif name == "inventory" %}
+    <svg class="navicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-3V4H7v3H4v2h16V7zM6 10h12v10H6V10zm3-4h6V4H9v2z"/></svg>
+  {% elif name == "suppliers" %}
+    <svg class="navicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4v2H3V7zm2 4h14v10H5V11zm3 2v6h2v-6H8zm6 0v6h2v-6h-2z"/></svg>
+  {% elif name == "purchases" %}
+    <svg class="navicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.77c.75 0 1.41-.41 1.75-1.03L21 8H7.21L6.27 6H3V4h4.27l3.6 7.59-1.35 2.45c-.18.33-.28.71-.28 1.1 0 1.28 1.04 2.32 2.32 2.32H20v-2H11.64c-.19 0-.35-.16-.35-.35 0-.06.02-.12.05-.17l.82-1.49z"/></svg>
+  {% elif name == "violations" %}
+    <svg class="navicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+  {% elif name == "rules" %}
+    <svg class="navicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18v2H3V4zm0 14h18v2H3v-2zm0-7h18v2H3v-2z"/></svg>
+  {% elif name == "reports" %}
+    <svg class="navicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.5V8h4.5L14 3.5zM8 12h8v2H8v-2zm0 4h8v2H8v-2z"/></svg>
+  {% elif name == "analytics" %}
+    <svg class="navicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h2v18H3V3zm16 6h2v12h-2V9zM11 13h2v8h-2v-8zM7 9h2v12H7V9zm10-6h2v4h-2V3z"/></svg>
+  {% elif name == "tasks" %}
+    <svg class="navicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11H7V9h2v2zm0 4H7v-2h2v2zm0 4H7v-2h2v2zM21 5v16a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2zM19 5H5v16h14V5zm-2 4H11V7h6v2zm0 4H11v-2h6v2zm0 4H11v-2h6v2z"/></svg>
+  {% elif name == "settings" %}
+    <svg class="navicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.07 7.07 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 13.9 1h-3.8a.5.5 0 0 0-.49.42l-.36 2.54c-.58.23-1.12.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 7.48a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.83 14.52a.5.5 0 0 0-.12.64l1.92 3.32c.13.23.4.32.64.22l2.39-.96c.5.4 1.05.71 1.63.94l.36 2.54c.04.24.25.42.49.42h3.8c.24 0 .45-.18.49-.42l.36-2.54c.58-.23 1.12-.54 1.63-.94l2.39.96c.24.1.51.01.64-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z"/></svg>
+  {% else %}
+    <svg class="navicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4z"/></svg>
+  {% endif %}
+{%- endmacro %}

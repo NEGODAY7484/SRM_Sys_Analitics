@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% set title = "Рекомендации по закупке" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Рекомендации по закупке</h1>
+      <div class="muted">Интеллектуальная оценка потребности на основе истории списаний</div>
+    </div>
+    <div class="row">
+      <a class="btn" href="/inventory">К складу</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <form method="get" action="/inventory/recommendations" class="row" style="justify-content:space-between; margin-bottom:10px; flex-wrap:wrap">
+      <div class="row" style="flex-wrap:wrap">
+        <div>
+          <div class="label">Окно анализа, дней</div>
+          <input class="input" name="lookback_days" value="{{ params.lookback_days }}" />
+        </div>
+        <div>
+          <div class="label">Покрытие запасом, дней</div>
+          <input class="input" name="coverage_days" value="{{ params.coverage_days }}" />
+        </div>
+      </div>
+      <div class="row" style="align-self:flex-end">
+        <button class="btn" type="submit">Пересчитать</button>
+      </div>
+    </form>
+
+    <div class="muted">Всего позиций к закупке: <b>{{ total }}</b></div>
+    <div style="height:10px"></div>
+
+    {% if recommendations|length == 0 %}
+      <div class="muted">Нет позиций, требующих закупки по текущим параметрам.</div>
+    {% else %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Наименование</th>
+            <th>Категория</th>
+            <th>Остаток</th>
+            <th>Минимум</th>
+            <th>Рекомендовано</th>
+            <th>Докупить</th>
+            <th>Использование (30д)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in recommendations %}
+          <tr>
+            <td><a href="/inventory/{{ r.sku }}"><code>{{ r.sku }}</code></a></td>
+            <td>{{ r.name }}</td>
+            <td>{{ r.category_code or "-" }}</td>
+            <td>{{ r.current_stock }}</td>
+            <td>{{ r.min_stock }}</td>
+            <td>{{ r.recommended_stock }}</td>
+            <td><b>{{ r.purchase_needed }}</b></td>
+            <td class="muted">{{ r.usage_30d_qty }} шт · {{ r.usage_30d_orders }} заказ(ов)</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% include "_pagination.html" %}
+    {% endif %}
+  </div>
+{% endblock %}
+

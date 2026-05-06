@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% set title = "Новая позиция склада" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Новая позиция</h1>
+      <div class="muted">Запчасть/комплектующее на складе</div>
+    </div>
+  </div>
+
+  <div class="card card-lg">
+    {% if error %}
+      <div class="alert">{{ error }}</div>
+    {% endif %}
+    <form class="form" method="post" action="/inventory/new">
+      <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">SKU *</div>
+          <input class="input" name="sku" placeholder="SCR-IP13-ORG" />
+        </div>
+        <div style="flex:2">
+          <div class="label">Наименование *</div>
+          <input class="input" name="name" placeholder="Экран iPhone 13 (Original)" />
+        </div>
+      </div>
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">Категория</div>
+          <select class="input" name="category_code">
+            <option value="">—</option>
+            {% for c in categories %}
+              <option value="{{ c.code }}">{{ c.code }} — {{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="flex:1">
+          <div class="label">Поставщик (предпочтительный)</div>
+          <select class="input" name="preferred_supplier_id">
+            <option value="">—</option>
+            {% for s in suppliers %}
+              <option value="{{ s.supplier_id }}">{{ s.supplier_id }} — {{ s.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">Остаток</div>
+          <input class="input" name="stock_qty" value="0" />
+        </div>
+        <div style="flex:1">
+          <div class="label">Мин. остаток</div>
+          <input class="input" name="min_stock_qty" value="0" />
+        </div>
+      </div>
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">Закупочная цена</div>
+          <input class="input" name="purchase_price" placeholder="8500" />
+        </div>
+        <div style="flex:1">
+          <div class="label">Розничная цена</div>
+          <input class="input" name="retail_price" placeholder="12000" />
+        </div>
+      </div>
+      <div>
+        <div class="label">Гарантия (мес)</div>
+        <input class="input" name="warranty_months" placeholder="12" />
+      </div>
+      <div class="row">
+        <button class="btn btn-primary" type="submit">Создать</button>
+        <a class="btn" href="/inventory">Отмена</a>
+      </div>
+      <div class="hint">Поля со звёздочкой обязательны.</div>
+    </form>
+  </div>
+{% endblock %}

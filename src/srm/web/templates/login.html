@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% set title = "Вход" %}
+
+{% block content %}
+  <div class="center">
+    <div class="card card-lg">
+      <h1 class="h1">Вход</h1>
+      <p class="muted">Локальная CRM/SRM-система сервисного центра</p>
+
+      {% if error %}
+        <div class="alert">{{ error }}</div>
+      {% endif %}
+
+      <form method="post" action="/login" class="form">
+        <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+        <label class="label">Логин</label>
+        <input class="input" name="username" placeholder="admin" required />
+
+        <label class="label">Пароль</label>
+        <input class="input" type="password" name="password" placeholder="••••••••" required />
+
+        <button class="btn btn-primary" type="submit">Войти</button>
+      </form>
+
+      <div class="hint">
+        Тестовый пользователь: <code>admin</code> / <code>admin123</code>
+      </div>
+
+      <div class="hint">
+        Если появляется ошибка про cookies/CSRF:
+        откройте <code>/login</code> в новой вкладке, обновите страницу (Ctrl+F5) и убедитесь, что cookies разрешены для <code>127.0.0.1</code>.
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% set title = "Новый контрагент" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Новый контрагент</h1>
+      <div class="muted">Создание карточки контрагента</div>
+    </div>
+  </div>
+
+  <div class="card card-lg">
+    {% if error %}
+      <div class="alert">{{ error }}</div>
+    {% endif %}
+    <form class="form" method="post" action="/clients/new">
+      <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+      <div>
+        <div class="label">Client ID</div>
+        <input class="input" name="client_id" value="{{ next_id }}" />
+      </div>
+      <div>
+        <div class="label">Имя *</div>
+        <input class="input" name="name" placeholder="Иван Петров" />
+      </div>
+      <div>
+        <div class="label">Телефон</div>
+        <input class="input" name="phone" placeholder="+7..." />
+      </div>
+      <div>
+        <div class="label">Email</div>
+        <input class="input" name="email" placeholder="mail@example.com" />
+      </div>
+      <div>
+        <div class="label">Комментарий</div>
+        <input class="input" name="comment" placeholder="Предпочтения, заметки..." />
+      </div>
+      <div class="row">
+        <button class="btn btn-primary" type="submit">Создать</button>
+        <a class="btn" href="/clients">Отмена</a>
+      </div>
+      <div class="hint">Поля со звёздочкой обязательны.</div>
+    </form>
+  </div>
+{% endblock %}

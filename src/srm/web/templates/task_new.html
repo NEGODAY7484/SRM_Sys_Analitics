@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% set title = "Новая задача" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Новая задача</h1>
+      <div class="muted">Постановка задачи сотруднику</div>
+    </div>
+  </div>
+
+  <div class="card card-lg">
+    {% if error %}
+      <div class="alert">{{ error }}</div>
+    {% endif %}
+    <form class="form" method="post" action="/tasks/new">
+      <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+      <div>
+        <div class="label">Task ID</div>
+        <input class="input" name="task_id" value="{{ next_id }}" />
+      </div>
+      <div>
+        <div class="label">Заголовок *</div>
+        <input class="input" name="title" placeholder="Позвонить клиенту, уточнить согласование" />
+      </div>
+      <div>
+        <div class="label">Описание</div>
+        <input class="input" name="description" placeholder="Детали задачи..." />
+      </div>
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">Статус</div>
+          <select class="input" name="status">
+            {% for s in statuses %}
+              <option value="{{ s[0] }}">{{ s[1] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="flex:1">
+          <div class="label">Приоритет</div>
+          <select class="input" name="priority">
+            <option value="low">низкий</option>
+            <option value="medium" selected>средний</option>
+            <option value="high">высокий</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">Дедлайн (YYYY-MM-DD)</div>
+          <input class="input" name="due_date" placeholder="2026-04-30" />
+        </div>
+        <div style="flex:1">
+          <div class="label">Исполнитель</div>
+          <select class="input" name="assigned_to">
+            <option value="">—</option>
+            {% for u in users %}
+              <option value="{{ u.username }}">{{ u.username }} ({{ u.role }})</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">Связь (тип)</div>
+          <input class="input" name="ref_type" placeholder="order / purchase / client ..." />
+        </div>
+        <div style="flex:1">
+          <div class="label">Связь (id)</div>
+          <input class="input" name="ref_id" placeholder="ORD-0001" />
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary" type="submit">Создать</button>
+        <a class="btn" href="/tasks">Отмена</a>
+      </div>
+      <div class="hint">Поля со звёздочкой обязательны.</div>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% set title = "Отчёты" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Отчёты SRM</h1>
+      <div class="muted">История запусков анализа закупок</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Run ID</th>
+          <th>Дата анализа</th>
+          <th>Запуск</th>
+          <th>Нарушений</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in runs %}
+        <tr>
+          <td><a href="/runs/{{ r.run_id }}">{{ r.run_id }}</a></td>
+          <td>{{ r.analysis_date }}</td>
+          <td>{{ r.started_at }}</td>
+          <td>{{ r.violations_total }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if runs|length == 0 %}
+      <div class="muted">Запусков пока нет.</div>
+    {% endif %}
+    {% include "_pagination.html" %}
+  </div>
+{% endblock %}

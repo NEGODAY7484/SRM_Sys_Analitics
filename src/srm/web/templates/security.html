@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% set title = "Безопасность" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Безопасность</h1>
+      <div class="muted">Журнал подозрительных действий и событий защиты</div>
+    </div>
+  </div>
+
+  <div class="card card-lg">
+    {% if events|length == 0 %}
+      <div class="muted">Событий пока нет.</div>
+    {% else %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Дата</th>
+            <th>Риск</th>
+            <th>Действие</th>
+            <th>Пользователь</th>
+            <th>IP</th>
+            <th>Детали</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in events %}
+          <tr>
+            <td>{{ e.created_at }}</td>
+            <td>
+              <span class="pill {{ 'pill-bad' if e.risk_level in ['high','critical'] else ('pill-warn' if e.risk_level == 'medium' else 'pill-ok') }}">
+                {{ e.risk_level }}
+              </span>
+            </td>
+            <td><code>{{ e.action }}</code></td>
+            <td>{{ e.username or "-" }}</td>
+            <td>{{ e.ip or "-" }}</td>
+            <td style="max-width:520px">
+              <details>
+                <summary class="muted">показать</summary>
+                <pre class="pre">{{ e.details_pretty }}</pre>
+              </details>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "_pagination.html" %}
+    {% endif %}
+  </div>
+{% endblock %}
+

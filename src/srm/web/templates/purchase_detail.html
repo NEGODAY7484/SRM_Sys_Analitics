@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% set title = "Закупка " ~ purchase.purchase_id %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Закупка <code>{{ purchase.purchase_id }}</code></h1>
+      <div class="muted">
+        Поставщик: <a href="/suppliers/{{ purchase.supplier_id }}"><code>{{ purchase.supplier_id }}</code></a> {{ purchase.supplier_name or "" }} ·
+        Категория: <b>{{ purchase.category_code or "-" }}</b> ·
+        Статус: <b>{{ purchase.status or "-" }}</b>
+      </div>
+      {% if purchase.related_order_id %}
+        <div class="muted">Связанный ремонт: <a href="/orders/{{ purchase.related_order_id }}"><code>{{ purchase.related_order_id }}</code></a></div>
+      {% endif %}
+    </div>
+    <div class="row">
+      <a class="btn" href="/purchases">К списку</a>
+    </div>
+  </div>
+
+  <section class="bento">
+    <div class="bento-card">
+      <div class="kpi-title">Сумма</div>
+      <div class="kpi-value">{{ purchase.total_amount }}</div>
+      <div class="kpi-foot muted">план/факт закупки</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Бюджет</div>
+      <div class="kpi-value">{{ purchase.planned_budget if purchase.planned_budget is not none else "-" }}</div>
+      <div class="kpi-foot muted">лимит</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">План поставки</div>
+      <div class="kpi-value" style="font-size:20px">{{ purchase.delivery_due_date or "-" }}</div>
+      <div class="kpi-foot muted">ожидаемая дата</div>
+    </div>
+    <div class="bento-card">
+      <div class="kpi-title">Факт</div>
+      <div class="kpi-value" style="font-size:20px">{{ purchase.delivery_actual_date or "-" }}</div>
+      <div class="kpi-foot muted">фактическая дата</div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <div class="h2">Детали</div>
+      <table class="table">
+        <tbody>
+          <tr><th>Товар</th><td>{{ purchase.item_name or "-" }}</td></tr>
+          <tr><th>SKU</th><td><code>{{ purchase.sku or "-" }}</code></td></tr>
+          <tr><th>Количество</th><td>{{ purchase.quantity if purchase.quantity is not none else "-" }}</td></tr>
+          <tr><th>Цена</th><td>{{ purchase.unit_price if purchase.unit_price is not none else "-" }}</td></tr>
+          <tr><th>Гарантия</th><td>{{ purchase.warranty_months if purchase.warranty_months is not none else "-" }} мес</td></tr>
+          <tr><th>Дата заказа</th><td>{{ purchase.order_date or "-" }}</td></tr>
+        </tbody>
+      </table>
+      {% if user.role in ["admin","manager"] %}
+        <div style="height:12px"></div>
+        <form class="form" method="post" action="/purchases/{{ purchase.purchase_id }}/update">
+          <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+          <div class="row">
+            <div style="flex:1">
+              <div class="label">Статус</div>
+              <select class="input" name="status">
+                {% for s in statuses %}
+                  <option value="{{ s }}" {{ 'selected' if purchase.status == s else '' }}>{{ s }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div style="flex:1">
+              <div class="label">Факт поставки</div>
+              <input class="input" type="date" name="delivery_actual_date" value="{{ purchase.delivery_actual_date or '' }}" />
+            </div>
+          </div>
+          <button class="btn" type="submit">Сохранить</button>
+        </form>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="h2">Нарушения по закупке</div>
+      {% if vio|length > 0 %}
+        <table class="table">
+          <thead><tr><th>Тип</th><th>Риск</th><th>Статус</th><th>Сообщение</th><th>Рекомендация</th></tr></thead>
+          <tbody>
+            {% for v in vio %}
+              <tr>
+                <td><code>{{ v.type }}</code></td>
+                <td><span class="pill {{ 'pill-bad' if v.risk_level in ['high','critical'] else ('pill-warn' if v.risk_level == 'medium' else 'pill-ok') }}">{{ v.risk_level }}</span></td>
+                <td>{{ v.status }}</td>
+                <td>{{ v.message }}</td>
+                <td class="muted">{{ v.recommendation }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="muted">Нарушений не зафиксировано.</div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

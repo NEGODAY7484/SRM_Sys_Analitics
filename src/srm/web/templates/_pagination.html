@@ -1,0 +1,21 @@
+{% if pagination and pagination.total is not none and pagination.total > 0 %}
+  <div class="row" style="justify-content:space-between; margin-top:12px; flex-wrap:wrap; gap:10px">
+    <div class="muted">
+      Показано {{ pagination.from }}–{{ pagination.to }} из {{ pagination.total }}
+    </div>
+    <div class="row" style="gap:8px">
+      {% if pagination.has_prev %}
+        <a class="btn btn-sm" href="{{ pagination.prev_url }}">← Назад</a>
+      {% else %}
+        <span class="btn btn-sm" style="opacity:.5; pointer-events:none">← Назад</span>
+      {% endif %}
+      <span class="muted" style="padding:8px 6px">Стр. {{ pagination.page }} / {{ pagination.pages }}</span>
+      {% if pagination.has_next %}
+        <a class="btn btn-sm" href="{{ pagination.next_url }}">Вперёд →</a>
+      {% else %}
+        <span class="btn btn-sm" style="opacity:.5; pointer-events:none">Вперёд →</span>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+

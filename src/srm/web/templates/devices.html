@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% set title = "Устройства" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Устройства</h1>
+      <div class="muted">Телефоны, планшеты, ноутбуки, часы — история ремонтов по устройству</div>
+    </div>
+    <a class="btn btn-primary" href="/devices/new">Новое устройство</a>
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Клиент</th>
+          <th>Тип</th>
+          <th>Модель</th>
+          <th>IMEI/Serial</th>
+          <th>Создано</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in devices %}
+        <tr>
+          <td><a href="/devices/{{ d.device_id }}"><code>{{ d.device_id }}</code></a></td>
+          <td><a href="/clients/{{ d.client_id }}">{{ d.client_name }}</a></td>
+          <td>{{ d.device_type }}</td>
+          <td>{{ d.brand }} {{ d.model }}</td>
+          <td>{{ d.serial_or_imei or "-" }}</td>
+          <td>{{ d.created_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if devices|length == 0 %}
+      <div class="muted">Пока нет устройств.</div>
+    {% endif %}
+    {% include "_pagination.html" %}
+  </div>
+{% endblock %}

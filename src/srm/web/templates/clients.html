@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% set title = "Контрагенты" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Контрагенты</h1>
+      <div class="muted">Контакты, комментарии и история обращений</div>
+    </div>
+    <a class="btn btn-primary" href="/clients/new">Новый контрагент</a>
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Имя</th>
+          <th>Телефон</th>
+          <th>Email</th>
+          <th>Баланс</th>
+          <th>Создан</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in clients %}
+        <tr>
+          <td><a href="/clients/{{ c.client_id }}"><code>{{ c.client_id }}</code></a></td>
+          <td>{{ c.name }}</td>
+          <td>{{ c.phone or "-" }}</td>
+          <td>{{ c.email or "-" }}</td>
+          <td>{{ c.balance }}</td>
+          <td>{{ c.created_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if clients|length == 0 %}
+      <div class="muted">Пока нет клиентов. Добавьте первого.</div>
+    {% endif %}
+    {% include "_pagination.html" %}
+  </div>
+{% endblock %}

@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% set title = "Настройки" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Настройки</h1>
+      <div class="muted">Пользователи, роли и параметры сотрудников</div>
+    </div>
+  </div>
+
+  <section class="grid2">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Пользователи</div>
+          <div class="muted">существующие аккаунты</div>
+        </div>
+      </div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Логин</th>
+            <th>Роль</th>
+            <th>Фото</th>
+            <th>ФИО</th>
+            <th>%</th>
+            <th>Фикс/заказ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td><code>{{ u.username }}</code></td>
+            <td>{{ u.role }}</td>
+            <td style="width:220px">
+              {% if u.photo_url %}
+                <img class="photo-thumb" src="{{ u.photo_url }}" alt="Фото сотрудника" />
+              {% else %}
+                <div class="muted">нет</div>
+              {% endif %}
+
+              <div style="height:6px"></div>
+              <form method="post" action="/settings/users/{{ u.username }}/photo" enctype="multipart/form-data" class="row">
+                <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+                <input class="input input-sm" type="file" name="photo" accept="image/*" required />
+                <button class="btn btn-sm" type="submit">OK</button>
+              </form>
+            </td>
+            <td>{{ u.full_name or "-" }}</td>
+            <td>{{ u.wage_percent if u.wage_percent is not none else "-" }}</td>
+            <td>{{ u.wage_fixed_per_order if u.wage_fixed_per_order is not none else "-" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Создать пользователя</div>
+          <div class="muted">для локальной версии</div>
+        </div>
+      </div>
+
+      {% if error %}
+        <div class="alert">{{ error }}</div>
+      {% endif %}
+
+      <form class="form" method="post" action="/settings/users/new">
+        <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+        <div class="row">
+          <div style="flex:1">
+            <div class="label">Логин *</div>
+            <input class="input" name="username" placeholder="master1" />
+          </div>
+          <div style="flex:1">
+            <div class="label">Пароль *</div>
+            <input class="input" name="password" placeholder="••••••" />
+          </div>
+        </div>
+        <div class="row">
+          <div style="flex:1">
+            <div class="label">Роль *</div>
+            <select class="input" name="role">
+              {% if user.role == "admin" %}
+                <option value="admin">admin</option>
+                <option value="manager">manager</option>
+              {% endif %}
+              <option value="master">master</option>
+              <option value="analyst" selected>analyst</option>
+            </select>
+          </div>
+          <div style="flex:1">
+            <div class="label">ФИО</div>
+            <input class="input" name="full_name" placeholder="Иван Иванов" />
+          </div>
+        </div>
+        <div class="row">
+          <div style="flex:1">
+            <div class="label">Процент мастера</div>
+            <input class="input" name="wage_percent" placeholder="20" />
+          </div>
+          <div style="flex:1">
+            <div class="label">Фиксированная ставка (за заказ)</div>
+            <input class="input" name="wage_fixed_per_order" placeholder="300" />
+          </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Создать</button>
+        <div class="hint">Поля со звёздочкой обязательны.</div>
+      </form>
+    </div>
+  </section>
+
+  <section class="grid2" style="margin-top:14px">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Рейтинг поставщиков</div>
+          <div class="muted">настройка весов факторов (только admin)</div>
+        </div>
+      </div>
+
+      {% if user.role != "admin" %}
+        <div class="muted">Доступно только администратору.</div>
+      {% else %}
+        <form class="form" method="post" action="/settings/supplier-rating">
+          <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+          <div class="row">
+            <div style="flex:1">
+              <div class="label">Вес: цена</div>
+              <input class="input" name="w_price" value="{{ supplier_rating_cfg.w_price }}" />
+            </div>
+            <div style="flex:1">
+              <div class="label">Вес: срок поставки</div>
+              <input class="input" name="w_delivery" value="{{ supplier_rating_cfg.w_delivery }}" />
+            </div>
+          </div>
+          <div class="row">
+            <div style="flex:1">
+              <div class="label">Вес: гарантия</div>
+              <input class="input" name="w_warranty" value="{{ supplier_rating_cfg.w_warranty }}" />
+            </div>
+            <div style="flex:1">
+              <div class="label">Вес: нарушения</div>
+              <input class="input" name="w_violations" value="{{ supplier_rating_cfg.w_violations }}" />
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn btn-primary" type="submit">Сохранить и пересчитать</button>
+          </div>
+          <div class="hint">Веса нормализуются автоматически (сумма = 1.0).</div>
+        </form>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Как считается рейтинг</div>
+          <div class="muted">объяснимый KPI (0..5)</div>
+        </div>
+      </div>
+      <div class="muted">
+        Рейтинг поставщика рассчитывается на основе 4 факторов (0..1):<br/>
+        <b>цена</b> (отклонение от средней по категории), <b>срок</b> (просрочки), <b>гарантия</b> (месяцы), <b>нарушения</b> (количество).<br/>
+        Итоговый score = сумма(вес × фактор), затем переводится в шкалу 0..5.
+      </div>
+    </div>
+  </section>
+{% endblock %}

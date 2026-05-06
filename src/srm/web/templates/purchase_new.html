@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% set title = "Новая закупка" %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">Новая закупка</h1>
+      <div class="muted">Создание закупки запчастей у поставщика</div>
+    </div>
+    <div class="row">
+      <a class="btn" href="/purchases">К списку</a>
+    </div>
+  </div>
+
+  <div class="card">
+    {% if error %}
+      <div class="alert">{{ error }}</div>
+    {% endif %}
+
+    <form class="form" method="post" action="/purchases/new">
+      <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">ID закупки *</div>
+          <input class="input" name="purchase_id" value="{{ next_id }}" />
+        </div>
+        <div style="flex:2">
+          <div class="label">Поставщик *</div>
+          <select class="input" name="supplier_id">
+            {% for s in suppliers %}
+              <option value="{{ s.supplier_id }}">{{ s.supplier_id }} — {{ s.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">Категория</div>
+          <select class="input" name="category_code">
+            <option value="">—</option>
+            {% for c in categories %}
+              <option value="{{ c.code }}">{{ c.code }} — {{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="flex:2">
+          <div class="label">Наименование</div>
+          <input class="input" name="item_name" placeholder="Дисплей iPhone / аккумулятор / шлейф..." />
+        </div>
+      </div>
+
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">SKU</div>
+          <input class="input" name="sku" placeholder="SCR-IP15-ORG" />
+        </div>
+        <div style="width:120px">
+          <div class="label">Кол-во</div>
+          <input class="input" name="quantity" value="1" />
+        </div>
+        <div style="width:160px">
+          <div class="label">Цена</div>
+          <input class="input" name="unit_price" placeholder="5000" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">Сумма</div>
+          <input class="input" name="total_amount" placeholder="если пусто — quantity*unit_price" />
+        </div>
+        <div style="flex:1">
+          <div class="label">Плановый бюджет</div>
+          <input class="input" name="planned_budget" placeholder="80000" />
+        </div>
+        <div style="flex:1">
+          <div class="label">Гарантия (мес)</div>
+          <input class="input" name="warranty_months" placeholder="6" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">Дата заказа</div>
+          <input class="input" type="date" name="order_date" value="{{ today }}" />
+        </div>
+        <div style="flex:1">
+          <div class="label">План поставки</div>
+          <input class="input" type="date" name="delivery_due_date" />
+        </div>
+        <div style="flex:1">
+          <div class="label">Факт поставки</div>
+          <input class="input" type="date" name="delivery_actual_date" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div style="flex:1">
+          <div class="label">Статус</div>
+          <select class="input" name="status">
+            {% for s in statuses %}
+              <option value="{{ s }}" {{ 'selected' if s == 'planned' else '' }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="flex:1">
+          <div class="label">Связанный заказ (ORD-...)</div>
+          <select class="input" name="related_order_id">
+            <option value="">—</option>
+            {% for o in orders %}
+              <option value="{{ o.order_id }}">{{ o.order_id }} — {{ o.client_name }} — {{ o.brand }} {{ o.model }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" type="submit">Создать</button>
+      <div class="hint">Поля со звёздочкой обязательны.</div>
+    </form>
+  </div>
+{% endblock %}

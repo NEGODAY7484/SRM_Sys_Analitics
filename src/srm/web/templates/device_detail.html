@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% set title = "Устройство " ~ device.device_id %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="h1">{{ device.brand }} {{ device.model }}</h1>
+      <div class="muted"><code>{{ device.device_id }}</code> · {{ device.device_type }} · IMEI/Serial: {{ device.serial_or_imei or "-" }}</div>
+      <div class="muted">Клиент: <a href="/clients/{{ device.client_id }}">{{ device.client_name }}</a></div>
+    </div>
+    <div class="row">
+      <a class="btn btn-primary" href="/orders/new">Новый заказ</a>
+    </div>
+  </div>
+
+  <section class="grid2">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">Состояние при приёмке</div>
+          <div class="muted">что зафиксировано в карточке устройства</div>
+        </div>
+      </div>
+      <div><b>Состояние:</b> {{ device.intake_condition or "-" }}</div>
+      <div style="height:8px"></div>
+      <div><b>Дефекты:</b> {{ device.defects_text or "-" }}</div>
+      <div style="height:10px"></div>
+      {% if photo_url %}
+        <img class="photo" src="{{ photo_url }}" alt="Фото устройства" />
+      {% else %}
+        <div class="muted">Фото устройства пока не добавлено.</div>
+      {% endif %}
+
+      {% if user.role in ["admin","manager","master"] %}
+        <div style="height:10px"></div>
+        <form class="row" method="post" action="/devices/{{ device.device_id }}/photo" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}" />
+          <input class="input" type="file" name="photo" accept="image/*" required />
+          <button class="btn" type="submit">Загрузить</button>
+        </form>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="h2">История ремонтов</div>
+          <div class="muted">заказы по данному устройству</div>
+        </div>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Заказ</th>
+            <th>Статус</th>
+            <th>Неисправность</th>
+            <th>Срок</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in orders %}
+          <tr>
+            <td><a href="/orders/{{ o.order_id }}"><code>{{ o.order_id }}</code></a></td>
+            <td><span class="pill pill-neutral">{{ o.status_label }}</span></td>
+            <td>{{ o.issue }}</td>
+            <td>{{ o.due_date or "-" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if orders|length == 0 %}
+        <div class="muted">Пока нет заказов.</div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}
